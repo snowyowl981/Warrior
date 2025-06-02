@@ -38,7 +38,7 @@ struct FWarriorHeroWeaponData
 
 	// 입력한 컨텍스트 매핑
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UInputMappingContext* WeaponInputMappingContext;
+	UInputMappingContext* WeaponInputMappingContext = nullptr;
 
 	// 기본 무기 어빌리티 배열
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))

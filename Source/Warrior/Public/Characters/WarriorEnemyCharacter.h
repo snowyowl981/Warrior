@@ -19,9 +19,16 @@ public:
 	AWarriorEnemyCharacter();
 
 protected:
+	//~ Begin APawn Interface.
+	virtual void PossessedBy(AController* NewController) override;
+	//~ End APawn Interface.\
+	
 	// 적 전투 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	class UEnemyCombatComponent* EnemyCombatComponent;
+
+private:
+	void InitEnemyStartUpData();
 
 public:
 	// 적 전투 컴포넌트 Getter 함수
