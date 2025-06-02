@@ -22,7 +22,7 @@ public:
 
 	// 입력 액션 변수
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UInputAction* InputAction;
+	UInputAction* InputAction = nullptr;
 
 	bool IsValid() const
 	{
