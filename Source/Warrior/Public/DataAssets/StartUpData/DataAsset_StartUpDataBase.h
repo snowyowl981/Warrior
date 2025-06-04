@@ -8,6 +8,7 @@
 
 class UWarriorGameplayAbility;
 class UWarriorAbilitySystemComponent;
+class UGameplayEffect;
 /**
  * 
  */
@@ -23,12 +24,16 @@ public:
 protected:
 	// 시작 시 부여 할 어빌리티
 	UPROPERTY(EditDefaultsOnly, Category = "StartUpData")
-	TArray<	TSubclassOf	< UWarriorGameplayAbility > > ActivateOnGivenAbilities;
+	TArray<TSubclassOf<UWarriorGameplayAbility>> ActivateOnGivenAbilities;
 	
 	// 특정 조건에서 부여 할 어빌리티
 	UPROPERTY(EditDefaultsOnly, Category = "StartUpData")
-	TArray<	TSubclassOf	< UWarriorGameplayAbility > > ReactiveAbilities;
+	TArray<TSubclassOf<UWarriorGameplayAbility>> ReactiveAbilities;
+
+	// 시작 시 사용할 GameplayEffect 배열
+	UPROPERTY(EditDefaultsOnly, Category = "StartUpData")
+	TArray<TSubclassOf<UGameplayEffect>> StartUpGameplayEffects;
 
 	// 어빌리티 부여 함수
-	void GrantAbilities(const TArray<	TSubclassOf	< UWarriorGameplayAbility > >& InAbilitiesToGive, UWarriorAbilitySystemComponent* InASCToGive, int32 ApplyLevel = 1);
+	void GrantAbilities(const TArray<TSubclassOf<UWarriorGameplayAbility>>& InAbilitiesToGive, UWarriorAbilitySystemComponent* InASCToGive, int32 ApplyLevel = 1);
 };
