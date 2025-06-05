@@ -41,30 +41,39 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 
 UPawnCombatComponent* AWarriorEnemyCharacter::GetCombatComponent() const
 {
+	// 적 전투 컴포넌트 반환
 	return EnemyCombatComponent;
 }
 
+// PossessedBy 함수는 이 캐릭터가 새로운 컨트롤러에 의해 조종되기 시작할 때 호출
 void AWarriorEnemyCharacter::PossessedBy(AController* NewController)
 {
+	// 부모 클래스의 PossessedBy 함수를 호출하여 기본 처리를 수행
 	Super::PossessedBy(NewController);
 
+	// 캐릭터 초기화 데이터를 설정하는 사용자 정의 함수 호출
 	InitEnemyStartUpData();
 }
 
+// 캐릭터의 시작 시 필요한 데이터를 비동기적으로 로딩하고 초기화하는 함수
 void AWarriorEnemyCharacter::InitEnemyStartUpData()
 {
+	// CharacterStartUpData가 유효하지 않으면 (SoftObjectPtr가 null일 경우) 함수 종료
 	if (CharacterStartUpData.IsNull())
 	{
 		return;
 	}
 
+	// AssetManager를 통해 비동기 로딩을 요청
 	UAssetManager::GetStreamableManager().RequestAsyncLoad(
-		CharacterStartUpData.ToSoftObjectPath(),
+		CharacterStartUpData.ToSoftObjectPath(), // SoftObjectPath를 통해 자산 경로 지정
 		FStreamableDelegate::CreateLambda(
-			[this]()
+			[this]() // 로딩이 완료되었을 때 실행할 람다 함수 정의
 			{
+				// 자산이 유효하게 로딩되었는지 확인하고, Get()을 통해 실제 객체 포인터 획득
 				if (UDataAsset_StartUpDataBase* LoadedData = CharacterStartUpData.Get())
 				{
+					// AbilitySystemComponent에 로딩된 능력 데이터를 적용
 					LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
 				}
 			}
