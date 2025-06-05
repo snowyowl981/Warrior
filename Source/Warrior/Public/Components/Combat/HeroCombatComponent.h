@@ -20,5 +20,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Warrior|Combat")
 	class AWarriorHeroWeapon* GetHeroCarriedWeaponByTag(FGameplayTag InWeaponTag) const;
 	
-	
+	// 타겟 상호작용 델리게이트 콜백 함수 (PawnCombatComponent로부터 상속)
+	virtual void OnHitTargetActor(AActor* HitActor) override;
+	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor) override;
 };

@@ -41,7 +41,8 @@ void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* Overlap
 		// 플레이어에만 적용, 무기를 소유한 Pawn이 맞은 Pawn이 아닌 경우
 		if (WeaponOwningPawn != HitPawn)
 		{
-			Debug::Print(GetName() + TEXT("Begin overlap with ") + HitPawn->GetName(), FColor::Green);
+			// ExecuteIfBound : 싱글캐스트 델리게이트에 바인딩된 함수를 확인하고 존재하면 함수를 실행
+			OnWeaponHitTarget.ExecuteIfBound(OtherActor);
 		}
 
 		// TODO : Implement hit check for enemy Characters
@@ -62,7 +63,7 @@ void AWarriorWeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* Overlappe
 		// 플레이어에만 적용, 무기를 소유한 Pawn이 맞은 Pawn이 아닌 경우
 		if (WeaponOwningPawn != HitPawn)
 		{
-			Debug::Print(GetName() + TEXT("End overlap with ") + HitPawn->GetName(), FColor::Red);
+			OnWeaponPulledFromTarget.ExecuteIfBound(OtherActor);
 		}
 
 		// TODO : Implement hit check for enemy Characters
