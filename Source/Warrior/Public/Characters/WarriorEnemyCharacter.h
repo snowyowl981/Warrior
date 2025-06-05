@@ -18,6 +18,10 @@ public:
 	// 생성자
 	AWarriorEnemyCharacter();
 
+	//~ Begin IPawnCombatInterface Interface.
+	virtual UPawnCombatComponent* GetCombatComponent() const override;
+	//~ End IPawnCombatInterface Interface.
+
 protected:
 	//~ Begin APawn Interface.
 	virtual void PossessedBy(AController* NewController) override;
