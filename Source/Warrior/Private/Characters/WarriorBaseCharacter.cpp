@@ -25,6 +25,11 @@ UAbilitySystemComponent* AWarriorBaseCharacter::GetAbilitySystemComponent() cons
 	return GetWarriorAbilitySystemComponent();
 }
 
+UPawnCombatComponent* AWarriorBaseCharacter::GetCombatComponent() const
+{
+	return nullptr;
+}
+
 // 폰 빙의 함수
 void AWarriorBaseCharacter::PossessedBy(AController* NewController)
 {

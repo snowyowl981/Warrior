@@ -49,6 +49,11 @@ AWarriorHeroCharacter::AWarriorHeroCharacter()
 
 }
 
+UPawnCombatComponent* AWarriorHeroCharacter::GetCombatComponent() const
+{
+	return HeroCombatComponent;
+}
+
 void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
