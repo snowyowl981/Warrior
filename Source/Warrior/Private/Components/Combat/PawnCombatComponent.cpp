@@ -3,6 +3,7 @@
 
 #include "Components/Combat/PawnCombatComponent.h"
 #include "Items/Weapons/WarriorWeaponBase.h"
+#include "Components/BoxComponent.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -57,4 +58,30 @@ AWarriorWeaponBase* UPawnCombatComponent::GetCharacterCurrentEquippedWeapon() co
 
 	// 태그를 통해 실제 무기 객체를 찾아서 반환
 	return GetCharacterCarriedWeaponByTag(CurrentEquippedWeaponTag);
+}
+
+void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType)
+{
+	// 토글시킬 피해 타입이 현재 장비중인 무기인 경우
+	if (ToggleDamageType == EToggleDamageType::CurrentEquippedWeapon)
+	{
+		// 현재 장비중인 무기 지역변수 할당
+		AWarriorWeaponBase* WeaponToToggle = GetCharacterCurrentEquippedWeapon();
+
+		// 현재 장비중인 무기 유효성 체크
+		check(WeaponToToggle);
+
+		// 충돌이 필요한 경우 Collision 활성화
+		if (bShouldEnable)
+		{
+			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			Debug::Print(WeaponToToggle->GetName() + TEXT("Collision Enabled"), FColor::Green);
+		}
+		// 충돌이 필요치 않은 경우 Collision 비활성화
+		else
+		{
+			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Debug::Print(WeaponToToggle->GetName() + TEXT("Collision Disabled"), FColor::Red);
+		}
+	}
 }

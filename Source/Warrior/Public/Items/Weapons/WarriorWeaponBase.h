@@ -20,8 +20,8 @@ protected:
 	UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
-	class UBoxComponent* WeaponColisionBox;
+	class UBoxComponent* WeaponCollisionBox;
 
 public:
-	FORCEINLINE UBoxComponent* GetWeaponColisionBox() const { return WeaponColisionBox; }
+	FORCEINLINE UBoxComponent* GetWeaponCollisionBox() const { return WeaponCollisionBox; }
 };

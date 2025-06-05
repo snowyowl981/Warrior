@@ -13,10 +13,10 @@ AWarriorWeaponBase::AWarriorWeaponBase()
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
 
-	WeaponColisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponColisionBox"));
-	WeaponColisionBox->SetupAttachment(GetRootComponent());
-	WeaponColisionBox->SetBoxExtent(FVector(20.f));
-	WeaponColisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponColisionBox"));
+	WeaponCollisionBox->SetupAttachment(GetRootComponent());
+	WeaponCollisionBox->SetBoxExtent(FVector(20.f));
+	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
 
