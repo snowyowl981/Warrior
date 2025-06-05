@@ -75,13 +75,13 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 		if (bShouldEnable)
 		{
 			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			Debug::Print(WeaponToToggle->GetName() + TEXT("Collision Enabled"), FColor::Green);
 		}
 		// 충돌이 필요치 않은 경우 Collision 비활성화
 		else
 		{
 			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Debug::Print(WeaponToToggle->GetName() + TEXT("Collision Disabled"), FColor::Red);
 		}
 	}
+
+	// TODO : Handle body collision boxes
 }
