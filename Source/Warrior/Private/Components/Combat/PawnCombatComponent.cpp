@@ -19,6 +19,10 @@ void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegis
 	// 맵에 무기를 태그와 함께 등록
 	CharacterCarriedWeaponMap.Emplace(InWeaponTagToRegister, InWeaponToRegister);
 
+	// 등록할 무기를 (WeaponBase) 사용해 CombatComponent에서 적과 상호작용 시 사용할 콜백 함수 바인딩
+	InWeaponToRegister->OnWeaponHitTarget.BindUObject(this, &ThisClass::OnHitTargetActor);
+	InWeaponToRegister->OnWeaponPulledFromTarget.BindUObject(this, &ThisClass::OnWeaponPulledFromTargetActor);
+
 	// 장착된 무기로 등록해야 한다면 현재 장착 무기 태그를 설정
 	if (bRegisterAsEquippedWeapon)
 	{
@@ -84,4 +88,12 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 	}
 
 	// TODO : Handle body collision boxes
+}
+
+void UPawnCombatComponent::OnHitTargetActor(AActor* HitActor)
+{
+}
+
+void UPawnCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
+{
 }

@@ -45,8 +45,11 @@ public:
 	// 무기 충돌 토글 함수
 	UFUNCTION(BlueprintCallable, Category = "Warrior|Combat")
 	void ToggleWeaponCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType = EToggleDamageType::CurrentEquippedWeapon);
-	
 
+	// 타겟 상호작용 델리게이트 콜백 함수
+	virtual void OnHitTargetActor(AActor* HitActor);
+	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor);
+	
 private:
 	// 장비중인 캐릭터 무기 맵
 	UPROPERTY()
