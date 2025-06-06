@@ -4,7 +4,8 @@
 #include "AbilitySystem/Abilities/WarriorHeroGameplayAbility.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Controllers/WarriorHeroController.h"
-#include "Components/Combat/HeroCombatComponent.h"
+#include "AbilitySystem/WarriorAbilitySystemComponent.h"
+#include "WarriorGameplayTags.h"
 
 AWarriorHeroCharacter* UWarriorHeroGameplayAbility::GetHeroCharacterFromActorInfo()
 {
@@ -36,4 +37,38 @@ UHeroCombatComponent* UWarriorHeroGameplayAbility::GetHeroCombatComponentFromAct
 {
 	// 현재 어빌리티의 ActorInfo에서 영웅 캐릭터를 가져온 후, 영웅 전투 컴포넌트 반환
 	return GetHeroCharacterFromActorInfo()->GetHeroCombatComponent();
+}
+
+FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag,
+	int32 InCurrentComboCount)
+{
+	// 게임플레이 이펙트 유효성 체크
+	check(EffectClass);
+
+	// 컨텍스트 핸들 지역변수 할당 및 프로퍼티 설정
+	FGameplayEffectContextHandle ContextHandle = GetWarriorAbilitySystemComponentFromActorInfo()->MakeEffectContext();
+	ContextHandle.SetAbility(this);
+	ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());
+	ContextHandle.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
+	
+	// 이펙트 스펙 핸들 지역변수 할당 및 프로퍼티 설정
+	FGameplayEffectSpecHandle EffectSpecHandle = GetWarriorAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(
+		EffectClass,
+		GetAbilityLevel(),
+		ContextHandle
+	);
+
+	// 이벤트 스펙 핸들 데이터에 대미지 설정
+	EffectSpecHandle.Data->SetSetByCallerMagnitude(
+		WarriorGameplayTags::Shared_SetByCaller_BaseDamage,
+		InWeaponBaseDamage
+	);
+
+	// InCurrentAttackTypeTag가 유효한 경우 이벤트 스펙 핸들 데이터에 공격 유형과 콤보 카운트 설정
+	if (InCurrentAttackTypeTag.IsValid())
+	{
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag, InCurrentComboCount);
+	}
+	
+	return EffectSpecHandle;
 }
