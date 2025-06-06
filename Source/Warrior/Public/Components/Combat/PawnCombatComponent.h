@@ -49,6 +49,10 @@ public:
 	// 타겟 상호작용 델리게이트 콜백 함수
 	virtual void OnHitTargetActor(AActor* HitActor);
 	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor);
+
+protected:
+	// 오버랩된 액터 배열
+	TArray<AActor*> OverlappedActors;
 	
 private:
 	// 장비중인 캐릭터 무기 맵
