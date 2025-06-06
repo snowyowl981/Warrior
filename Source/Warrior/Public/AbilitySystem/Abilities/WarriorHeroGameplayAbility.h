@@ -9,6 +9,7 @@
 class AWarriorHeroCharacter;
 class AWarriorHeroController;
 class UHeroCombatComponent;
+
 /**
  * 
  */
@@ -20,14 +21,18 @@ class WARRIOR_API UWarriorHeroGameplayAbility : public UWarriorGameplayAbility
 public:
 	// 현재 어빌리티(Ability)의 ActorInfo에서 영웅 캐릭터(AWarriorHeroCharacter) 할당
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
-	AWarriorHeroCharacter* GetHeroCharacterFromActorInfo();
+	AWarriorHeroCharacter*	GetHeroCharacterFromActorInfo();
 
 	// ActorInfo에서 영웅 컨트롤러(AWarriorHeroController) 할당
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
-	AWarriorHeroController* GetHeroControllerFromActorInfo();
+	AWarriorHeroController*	GetHeroControllerFromActorInfo();
 
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
-	UHeroCombatComponent* GetHeroCombatComponentFromActorInfo();
+	UHeroCombatComponent*	GetHeroCombatComponentFromActorInfo();
+
+	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag, int32 InCurrentComboCount);
+	
 
 private:
 	// TWeakObjectPtr : 언리얼 스마트 포인터 유형 (객체의 참조만 유지하고 싶을 때)
