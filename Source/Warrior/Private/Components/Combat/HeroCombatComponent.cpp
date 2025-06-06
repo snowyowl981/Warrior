@@ -3,7 +3,9 @@
 
 #include "Components/Combat/HeroCombatComponent.h"
 #include "Items/Weapons/WarriorHeroWeapon.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
+#include "WarriorGameplayTags.h"
 #include "WarriorDebugHelper.h"
 
 class AWarriorHeroWeapon* UHeroCombatComponent::GetHeroCarriedWeaponByTag(FGameplayTag InWeaponTag) const
@@ -13,10 +15,29 @@ class AWarriorHeroWeapon* UHeroCombatComponent::GetHeroCarriedWeaponByTag(FGamep
 
 void UHeroCombatComponent::OnHitTargetActor(AActor* HitActor)
 {
-	Debug::Print(GetOwningPawn()->GetActorNameOrLabel() + TEXT(" Hit ") + HitActor->GetActorNameOrLabel(), FColor::Green);
+	// 맞은 액터가 오버랩된 액터 배열에 포함된 경우 함수 종료 (한 번만 히트처리하기 위해)
+	if (OverlappedActors.Contains(HitActor))
+	{
+		return;
+	}
+
+	// 오버랩된 액터에 맞은 액터 추가 (히트 처리)
+	OverlappedActors.AddUnique(HitActor);
+
+	// 전송할 게임플레이 이벤트 데이터 생성 및 값 설정
+	FGameplayEventData	Data;
+	Data.Instigator	= GetOwningPawn();
+	Data.Target		= HitActor;
+	
+	// 액터에게 게임플레이 이벤트 전송 (액터, 태그, 이벤트 데이터 전달)
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		GetOwningPawn(),
+		WarriorGameplayTags::Shared_Event_MeleeHit,
+		Data
+	);
 }
 
 void UHeroCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
 {
-	Debug::Print(GetOwningPawn()->GetActorNameOrLabel() + TEXT(" Pulled ") + InteractedActor->GetActorNameOrLabel(), FColor::Red);
+	
 }

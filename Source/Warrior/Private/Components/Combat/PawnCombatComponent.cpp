@@ -84,6 +84,8 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 		else
 		{
 			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			// 충돌 ANS(Anim Notify State)가 끝날 때 오버랩된 액터 배열 클리어
+			OverlappedActors.Empty();
 		}
 	}
 
@@ -92,6 +94,7 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 
 void UPawnCombatComponent::OnHitTargetActor(AActor* HitActor)
 {
+	
 }
 
 void UPawnCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
