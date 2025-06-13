@@ -15,3 +15,11 @@ enum class EWarriorValidType : uint8
 	Valid,		// 유효함
 	Invalid		// 유효하지 않음
 };
+
+// 사용자 정의 Enum - 성공 타입 (블루프린트에서 사용 가능)
+UENUM()
+enum class EWarriorSuccessType : uint8
+{
+	Successful,	// 성공
+	Failed		// 실패
+};
