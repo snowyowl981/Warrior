@@ -22,16 +22,18 @@ public:
 	// 현재 어빌리티(Ability)의 ActorInfo에서 영웅 캐릭터(AWarriorHeroCharacter) 할당
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	AWarriorHeroCharacter*	GetHeroCharacterFromActorInfo();
-
+	
 	// ActorInfo에서 영웅 컨트롤러(AWarriorHeroController) 할당
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	AWarriorHeroController*	GetHeroControllerFromActorInfo();
 
+	// ActorInfo에서 영웅 컨트롤러(UHeroCombatComponent) 할당
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	UHeroCombatComponent*	GetHeroCombatComponentFromActorInfo();
 
+	// 영웅 대미지 효과 SpecHandle 생성 함수
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
-	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag, int32 InCurrentComboCount);
+	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag, int32 InUsedComboCount);
 	
 
 private:

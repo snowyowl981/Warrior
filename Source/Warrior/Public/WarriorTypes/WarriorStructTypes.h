@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameplayTagContainer.h"
+#include "ScalableFloat.h"
 #include "WarriorStructTypes.generated.h"
 
 class UWarriorHeroGameplayAbility;
@@ -43,4 +44,8 @@ struct FWarriorHeroWeaponData
 	// 기본 무기 어빌리티 배열
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
 	TArray<FWarriorHeroAbilitySet> DefaultWeaponAbilities;
+
+	// 무기 기본 대미지. FScalableFloat : Data Table의 행(변수)과 열(레벨)을 참조하는 구조체
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FScalableFloat WeaponBaseDamage;
 };

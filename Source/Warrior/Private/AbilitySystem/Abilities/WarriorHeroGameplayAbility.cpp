@@ -40,7 +40,7 @@ UHeroCombatComponent* UWarriorHeroGameplayAbility::GetHeroCombatComponentFromAct
 }
 
 FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag,
-	int32 InCurrentComboCount)
+	int32 InUsedComboCount)
 {
 	// 게임플레이 이펙트 유효성 체크
 	check(EffectClass);
@@ -67,7 +67,7 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 	// InCurrentAttackTypeTag가 유효한 경우 이벤트 스펙 핸들 데이터에 공격 유형과 콤보 카운트 설정
 	if (InCurrentAttackTypeTag.IsValid())
 	{
-		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag, InCurrentComboCount);
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag, InUsedComboCount);
 	}
 	
 	return EffectSpecHandle;
