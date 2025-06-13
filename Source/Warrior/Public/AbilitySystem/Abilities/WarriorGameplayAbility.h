@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "WarriorTypes/WarriorEnumTypes.h"
 #include "WarriorGameplayAbility.generated.h"
 
 UENUM(BlueprintType)
@@ -41,4 +42,11 @@ protected:
 	// 액터로부터 어빌리티 시스템 컴포넌트 받아오는 함수
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	class UWarriorAbilitySystemComponent* GetWarriorAbilitySystemComponentFromActorInfo() const;
+
+	// 특정 대상에게 GameplayEffect를 적용하는 기능을 수행 및 ActiveGameplayEffectHandle 반환
+	FActiveGameplayEffectHandle NativeApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle);
+
+	// 블루프린트에서 호출 가능한 함수로, 대상 액터에 GameplayEffectSpecHandle을 적용하고 성공 여부를 반환
+	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability", meta = (DisplayName = "Apply Gameplay Effect Spec Handle To Target", ExpandBoolAsExecs = "OutSuccessType"))
+	FActiveGameplayEffectHandle BP_ApplyEffectSpecHandleToTargetActor(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EWarriorSuccessType& OutSuccessType);
 };
