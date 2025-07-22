@@ -23,7 +23,6 @@ public:
 	// 어빌리티 입력이 떼어졌을 때 호출되는 함수 (예: 공격 버튼에서 손 뗌)
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 
-	// 캐릭터에게 기본 무기 관련 어빌리티들을 부여하는 함수
 	// Blueprint에서 호출 가능하며, AbilitySet에 정의된 어빌리티들을 ApplyLevel 레벨로 부여
 	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability", meta = (ApplyLevel = "1"))
 	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantAbilitySpecHandles);
