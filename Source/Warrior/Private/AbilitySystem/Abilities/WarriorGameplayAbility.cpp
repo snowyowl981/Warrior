@@ -63,6 +63,7 @@ FActiveGameplayEffectHandle UWarriorGameplayAbility::NativeApplyEffectSpecHandle
 		*InSpecHandle.Data,		// 적용할 GameplayEffectSpec
 		TargetASC				// 효과를 적용할 대상의 Ability System Component
 	);
+
 }
 
 FActiveGameplayEffectHandle UWarriorGameplayAbility::BP_ApplyEffectSpecHandleToTargetActor(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EWarriorSuccessType& OutSuccessType)

@@ -5,12 +5,15 @@
 #include "AbilitySystem/WarriorAttributeSet.h"
 #include "WarriorGameplayTags.h"
 
+#include "WarriorDebugHelper.h"
+
 // 데미지 계산 시 사용할 Attribute들을 정의하는 구조체
 struct FWarriorDamageCapture
 {
 	// AttackPower 속성 캡처 정의 선언 (매크로 내부적으로 CaptureDefinition 멤버를 생성함)
 	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower)
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DefensePower)
+	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageTaken)
 
 	// 생성자에서 실제 CaptureDefinition을 초기화
 	FWarriorDamageCapture()
@@ -19,6 +22,8 @@ struct FWarriorDamageCapture
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet, AttackPower, Source, false)
 		// 방어자는 Target으로부터 DefensePower를 캡처함
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet, DefensePower, Target, false)
+		// 방어자는 Target으로부터 DamageTaken을 캡처함
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet, DamageTaken, Target, false)
 	}
 };
 
@@ -52,9 +57,10 @@ UGEExecCalc_DamageTaken::UGEExecCalc_DamageTaken()
 
 	/* 빠른 방법: 미리 정의해둔 CaptureDef 사용 */
 
-	// AttackPower와 DefensePower CaptureDef를 목록에 추가
+	// AttackPower와 DefensePower, DamageTaken CaptureDef를 목록에 추가
 	RelevantAttributesToCapture.Add(GetWarriorDamageCapture().AttackPowerDef);
 	RelevantAttributesToCapture.Add(GetWarriorDamageCapture().DefensePowerDef);
+	RelevantAttributesToCapture.Add(GetWarriorDamageCapture().DamageTakenDef);
 }
 
 void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -80,6 +86,7 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 		EvaluateParameters,
 		SourceAttackPower
 	);
+	// Debug::Print(TEXT("SourceAttackPower"), SourceAttackPower);
 
 	// SetByCaller로 전달된 커스텀 값들 (기본 대미지, 콤보 수 등)을 읽기 위한 변수들
 	float BaseDamage = 0.f;
@@ -93,18 +100,21 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 		if (TagMagnitude.Key.MatchesTagExact(WarriorGameplayTags::Shared_SetByCaller_BaseDamage))
 		{
 			BaseDamage = TagMagnitude.Value;
+			// Debug::Print(TEXT("BaseDamage"), BaseDamage);
 		}
 
 		// 라이트 공격 콤보 횟수
 		if (TagMagnitude.Key.MatchesTagExact(WarriorGameplayTags::Player_SetByCaller_AttackType_Light))
 		{
 			UsedLightAttackComboCount = TagMagnitude.Value;
+			// Debug::Print(TEXT("UsedLightAttackComboCount"), UsedLightAttackComboCount);
 		}
 
 		// 헤비 공격 콤보 횟수
 		if (TagMagnitude.Key.MatchesTagExact(WarriorGameplayTags::Player_SetByCaller_AttackType_Heavy))
 		{
 			UsedHeavyAttackComboCount = TagMagnitude.Value;
+			// Debug::Print(TEXT("UsedHeavyAttackComboCount"), UsedHeavyAttackComboCount);
 		}
 	}
 
@@ -115,4 +125,38 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 		EvaluateParameters,
 		TargetDefensePower
 	);
+	// Debug::Print(TEXT("TargetDefensePower"), TargetDefensePower);
+	
+	// 약공격 콤보 카운트를 사용한 기본 공격력 5% 증가
+	if (UsedLightAttackComboCount != 0)
+	{
+		const float DamageIncreasePercentLight = (UsedLightAttackComboCount - 1) * 0.05 + 1.f;
+
+		BaseDamage *= DamageIncreasePercentLight;
+		// Debug::Print(TEXT("ScaledBasedDamageLight"), BaseDamage);
+	}
+	
+	// 강공격 콤보 카운트를 사용한 기본 공격력 15% 증가
+	if (UsedHeavyAttackComboCount != 0)
+	{
+		const float DamageIncreasePercentHeavy = UsedHeavyAttackComboCount * 0.15 + 1.f;
+
+		BaseDamage *= DamageIncreasePercentHeavy;
+		// Debug::Print(TEXT("ScaledBasedDamageHeavy"), BaseDamage);
+	}
+
+	// 최종 피해 계산
+	const float FinalDamageDone = BaseDamage * SourceAttackPower / TargetDefensePower;
+	Debug::Print(TEXT("FinalDamageDone"), FinalDamageDone);
+	
+	if (FinalDamageDone > 0.f)
+	{
+		OutExecutionOutput.AddOutputModifier(
+			FGameplayModifierEvaluatedData(
+				GetWarriorDamageCapture().DamageTakenProperty,
+				EGameplayModOp::Override,
+				FinalDamageDone
+			)
+		);
+	}
 }
