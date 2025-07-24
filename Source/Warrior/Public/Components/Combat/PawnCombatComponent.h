@@ -57,6 +57,6 @@ protected:
 private:
 	// 장비중인 캐릭터 무기 맵
 	UPROPERTY()
-	TMap<FGameplayTag, AWarriorWeaponBase*>  CharacterCarriedWeaponMap;
+	TMap<FGameplayTag, AWarriorWeaponBase*> CharacterCarriedWeaponMap;
 	
 };
