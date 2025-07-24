@@ -46,7 +46,7 @@ void UHeroCombatComponent::OnHitTargetActor(AActor* HitActor)
 		Data
 	);
 
-	// 액터에게 게임플레이 이벤트 전송 (액터, 타격 시 멈춤 효과 태그, 이벤트 데이터는 빈칸으로 전달)
+	// 액터에게 HitPause 게임플레이 이벤트 전송
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 		GetOwningPawn(),
 		WarriorGameplayTags::Player_Event_HitPause,
@@ -56,10 +56,10 @@ void UHeroCombatComponent::OnHitTargetActor(AActor* HitActor)
 
 void UHeroCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
 {
-	// 무기 끝이 타겟 액터와 겹칠 때 발생시킬 다른 Pause 효과
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-		GetOwningPawn(),
-		WarriorGameplayTags::Player_Event_HitPause,
-		FGameplayEventData()
-	);
+	// 타격이 끝날 때 발생시킬 다른 HitPause 효과
+	// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+	// 	GetOwningPawn(),
+	// 	WarriorGameplayTags::Player_Event_HitPause,
+	// 	FGameplayEventData()
+	// );
 }
