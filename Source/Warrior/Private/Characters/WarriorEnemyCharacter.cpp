@@ -6,6 +6,7 @@
 #include "Components/Combat/EnemyCombatComponent.h"
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartUpData/DataAsset_EnemyStartUpData.h"
+#include "Components/UI/EnemyUIComponent.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -37,12 +38,20 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 
 	// EnemyCombatComponent 생성 및 초기화
 	EnemyCombatComponent = CreateDefaultSubobject<UEnemyCombatComponent>("EnemyCombatComponent");
+
+	// EnemyCombatComponent 생성 및 초기화
+	EnemyUIComponent = CreateDefaultSubobject<UEnemyUIComponent>("EnemyUIComponent");
 }
 
 UPawnCombatComponent* AWarriorEnemyCharacter::GetCombatComponent() const
 {
 	// 적 전투 컴포넌트 반환
 	return EnemyCombatComponent;
+}
+
+UPawnUIComponent* AWarriorEnemyCharacter::GetPawnUIComponent() const
+{
+	return EnemyUIComponent;
 }
 
 // PossessedBy 함수는 이 캐릭터가 새로운 컨트롤러에 의해 조종되기 시작할 때 호출

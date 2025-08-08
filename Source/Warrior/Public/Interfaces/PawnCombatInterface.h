@@ -22,5 +22,6 @@ class WARRIOR_API IPawnCombatInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	// Pawn Combat Component 가져오는 인터페이스 가상함수
 	virtual class UPawnCombatComponent* GetCombatComponent() const = 0;
 };
