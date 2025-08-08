@@ -5,6 +5,9 @@
 #include "GameplayEffectExtension.h"
 #include "WarriorFunctionLibrary.h"
 #include "WarriorGameplayTags.h"
+#include "Interfaces/PawnUIInterface.h"
+#include "Components/UI/PawnUIComponent.h"
+#include "Components/UI/HeroUIComponent.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -21,13 +24,30 @@ UWarriorAttributeSet::UWarriorAttributeSet()
 
 void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
+	// 캐싱한 PawnUIInterface가 유효하지 않은 경우
+	if (!CachedPawnUIInterface.IsValid())
+	{
+		// AvatarActor에서 IPawnUIInterface 
+		CachedPawnUIInterface = TWeakInterfacePtr<IPawnUIInterface>(Data.Target.GetAvatarActor());
+	}
+	// CachedPawnUIInterface 유효성 체크
+	checkf(CachedPawnUIInterface.IsValid(), TEXT("%s didn't implement IPawnUIInterface"), *Data.Target.GetAvatarActor()->GetActorNameOrLabel());
+
+	// PawnUIComponent 할당 및 유효성 체크
+	UPawnUIComponent* PawnUIComponent = CachedPawnUIInterface->GetPawnUIComponent();
+	checkf(PawnUIComponent, TEXT("Couldn't Extract a PawnUIComponent from %s"), *Data.Target.GetAvatarActor()->GetActorNameOrLabel());
+	
 	// 속성 값이 현재 체력 가져오기 속성과 같으면 게임플레이 효과를 사용해 현재 체력 속성 수정중이란 의미
 	if (Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
 	{
 		// 현재 체력 설정 최대값 : 최대 체력, 최소값 : 0
 		const float NewCurrentHealth = FMath::Clamp(GetCurrentHealth(), 0.f, GetMaxHealth());
 
+		// 현재 체력 설정
 		SetCurrentHealth(NewCurrentHealth);
+
+		// 최대 체력에 대한 현재 체력 비율 PawnUIComponent에 전달
+		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth() / GetMaxHealth());
 	}
 
 	// 속성 값이 현재 분노 가져오기 속성과 같으면 게임플레이 효과를 사용해 현재 분노 속성 수정중이란 의미
@@ -36,7 +56,16 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		// 현재 분노 설정 최대값 : 최대 분노, 최소값 : 0
 		const float NewCurrentRage = FMath::Clamp(GetCurrentRage(), 0.f, GetMaxRage());
 
+		// 현재 분노 설정
 		SetCurrentRage(NewCurrentRage);
+
+		// HeroUIComponent 할당 및 유효성 체크
+		if (UHeroUIComponent* HeroUIComponent = CachedPawnUIInterface->GetHeroUIComponent())
+		{
+			// 최대 분노에 대한 현재 분노 비율 PawnUIComponent에 전달
+			HeroUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentRage() / GetMaxRage());
+		}
+		
 	}
 
 	// 속성 값이 현재 받는 피해량 속성과 같으면 게임플레이 효과를 사용해 현재 받는 피해량 속성을 수정해 피해를 입히고 있다는 의미
@@ -61,7 +90,8 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 
 		Debug::Print(DebugString, FColor::Red);
 
-		// TODO::UI에 알림 표시
+		// UI에 알림 표시
+		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth() / GetMaxHealth());
 		
 		// 캐릭터 사망 처리
 		if (NewCurrentHealth == 0.f)
