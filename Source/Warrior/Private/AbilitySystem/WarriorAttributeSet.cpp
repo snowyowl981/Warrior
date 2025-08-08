@@ -93,8 +93,8 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		// UI에 알림 표시
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth() / GetMaxHealth());
 		
-		// 캐릭터 사망 처리
-		if (NewCurrentHealth == 0.f)
+		// 캐릭터 사망 처리 (NewCurrentHealth 사용해도 무관)
+		if (GetCurrentHealth() == 0.f)
 		{
 			// 액터에 사망 상태 태그 추가 (이 액터에 동일한 태그를 여러 번 추가하는 것 방지)
 			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(Data.Target.GetAvatarActor(), WarriorGameplayTags::Shared_Status_Dead);
