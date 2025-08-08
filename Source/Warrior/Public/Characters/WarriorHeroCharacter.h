@@ -50,6 +50,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UHeroCombatComponent* HeroCombatComponent;
 
+	// 영웅 UI 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class UHeroUIComponent* HeroUIComponent;
 #pragma endregion
