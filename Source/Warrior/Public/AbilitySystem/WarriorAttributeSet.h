@@ -63,4 +63,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Damage")
 	FGameplayAttributeData DamageTaken;
 	ATTRIBUTE_ACCESSORS(UWarriorAttributeSet, DamageTaken)
+
+private:
+	// PawnUIInterface를 할당해 캐싱할 TWeakInterfacePtr
+	TWeakInterfacePtr<class IPawnUIInterface> CachedPawnUIInterface;
 };
