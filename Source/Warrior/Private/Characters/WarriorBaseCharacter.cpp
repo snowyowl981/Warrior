@@ -30,6 +30,11 @@ UPawnCombatComponent* AWarriorBaseCharacter::GetCombatComponent() const
 	return nullptr;
 }
 
+UPawnUIComponent* AWarriorBaseCharacter::GetPawnUIComponent() const
+{
+	return nullptr;
+}
+
 // 폰 빙의 함수
 void AWarriorBaseCharacter::PossessedBy(AController* NewController)
 {

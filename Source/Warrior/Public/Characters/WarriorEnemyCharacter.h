@@ -22,6 +22,10 @@ public:
 	virtual UPawnCombatComponent* GetCombatComponent() const override;
 	//~ End IPawnCombatInterface Interface.
 
+	//~ Begin IPawnUIInterface Interface.
+	virtual UPawnUIComponent* GetPawnUIComponent() const override;
+	//~ End IPawnUIInterface Interface.
+
 protected:
 	//~ Begin APawn Interface.
 	virtual void PossessedBy(AController* NewController) override;
@@ -30,6 +34,9 @@ protected:
 	// 적 전투 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	class UEnemyCombatComponent* EnemyCombatComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	class UEnemyUIComponent* EnemyUIComponent;
 
 private:
 	void InitEnemyStartUpData();

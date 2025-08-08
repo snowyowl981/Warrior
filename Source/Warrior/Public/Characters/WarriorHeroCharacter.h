@@ -21,6 +21,10 @@ public:
 	//~ Begin IPawnCombatInterface Interface.
 	virtual UPawnCombatComponent* GetCombatComponent() const override;
 	//~ End IPawnCombatInterface Interface.
+
+	//~ Begin IPawnUIInterface Interface.
+	virtual UPawnUIComponent* GetPawnUIComponent() const override;
+	//~ End IPawnUIInterface Interface.
 	
 protected:
 	//~ Begin APawn Interface.
@@ -43,7 +47,10 @@ private:
 
 	// 영웅 전투 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	class UHeroCombatComponent * HeroCombatComponent;
+	class UHeroCombatComponent* HeroCombatComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class UHeroUIComponent* HeroUIComponent;
 #pragma endregion
 
 
@@ -66,4 +73,5 @@ private:
 
 public:
 	FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
+	
 };
