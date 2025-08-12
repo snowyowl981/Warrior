@@ -24,6 +24,7 @@ public:
 
 	//~ Begin IPawnUIInterface Interface.
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
+	virtual UEnemyUIComponent* GetEnemyUIComponent() const override;
 	//~ End IPawnUIInterface Interface.
 
 protected:
@@ -36,7 +37,7 @@ protected:
 	class UEnemyCombatComponent* EnemyCombatComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
-	class UEnemyUIComponent* EnemyUIComponent;
+	UEnemyUIComponent* EnemyUIComponent;
 
 private:
 	void InitEnemyStartUpData();
