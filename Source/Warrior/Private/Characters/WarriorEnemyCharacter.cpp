@@ -54,6 +54,11 @@ UPawnUIComponent* AWarriorEnemyCharacter::GetPawnUIComponent() const
 	return EnemyUIComponent;
 }
 
+UEnemyUIComponent* AWarriorEnemyCharacter::GetEnemyUIComponent() const
+{
+	return EnemyUIComponent;
+}
+
 // PossessedBy 함수는 이 캐릭터가 새로운 컨트롤러에 의해 조종되기 시작할 때 호출
 void AWarriorEnemyCharacter::PossessedBy(AController* NewController)
 {
