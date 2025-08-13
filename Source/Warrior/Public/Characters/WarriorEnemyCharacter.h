@@ -28,6 +28,8 @@ public:
 	//~ End IPawnUIInterface Interface.
 
 protected:
+	virtual void BeginPlay() override;
+	
 	//~ Begin APawn Interface.
 	virtual void PossessedBy(AController* NewController) override;
 	//~ End APawn Interface.\
@@ -36,8 +38,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	class UEnemyCombatComponent* EnemyCombatComponent;
 
+	// 적 UI 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UEnemyUIComponent* EnemyUIComponent;
+
+	// 적 체력 위젯 컴포넌트 클래스
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	class UWidgetComponent* EnemyHealthWidgetComponent; 
 
 private:
 	void InitEnemyStartUpData();
