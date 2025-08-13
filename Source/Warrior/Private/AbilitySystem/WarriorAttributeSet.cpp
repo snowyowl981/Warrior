@@ -63,7 +63,7 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		if (UHeroUIComponent* HeroUIComponent = CachedPawnUIInterface->GetHeroUIComponent())
 		{
 			// 최대 분노에 대한 현재 분노 비율 PawnUIComponent에 전달
-			HeroUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentRage() / GetMaxRage());
+			HeroUIComponent->OnCurrentRageChanged.Broadcast(GetCurrentRage() / GetMaxRage());
 		}
 		
 	}
