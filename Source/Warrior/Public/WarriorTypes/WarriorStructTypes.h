@@ -48,4 +48,8 @@ struct FWarriorHeroWeaponData
 	// 무기 기본 대미지. FScalableFloat : Data Table의 행(변수)과 열(레벨)을 참조하는 구조체
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FScalableFloat WeaponBaseDamage;
+
+	// 무기 아이콘 텍스처 소프트 오브젝트 포인터
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UTexture2D> SoftWeaponIconTexture;
 };
