@@ -31,7 +31,7 @@ protected:
 	// - OnInputPressed: 입력이 눌렸을 때 발동
 	// - WhileInputActive: 입력이 유지되는 동안 반복 발동
 	// - OnTriggered: 코드나 조건에 의해 수동으로 발동
-	// 기본값은 OnTriggered이며, 주로 코드에서 직접 어빌리티를 실행할 때 사용
+	// 기본값은 OnTriggered, 주로 코드에서 직접 어빌리티를 실행할 때 사용
 	UPROPERTY(EditDefaultsOnly, Category = "WarriorAbility")
 	EWarriorAbilityActivationPolicy AbilityActivationPolicy = EWarriorAbilityActivationPolicy::OnTriggered;
 	
