@@ -49,8 +49,8 @@ ETeamAttitude::Type AWarriorAIController::GetTeamAttitudeTowards(const AActor& O
 	const APawn* PawnToCheck = Cast<const APawn>(&Other);
 	const IGenericTeamAgentInterface* OtherTeamAgent = Cast<const IGenericTeamAgentInterface>(PawnToCheck->GetController());
 
-	// TeamId가 다른 경우 적대, 같은 경우 우호
-	if (OtherTeamAgent && OtherTeamAgent->GetGenericTeamId() != GetGenericTeamId())
+	// TeamId가 작은 경우 적대, 반대 경우 우호
+	if (OtherTeamAgent && OtherTeamAgent->GetGenericTeamId() < GetGenericTeamId())
 	{
 		return ETeamAttitude::Hostile;
 	}
@@ -89,13 +89,28 @@ void AWarriorAIController::BeginPlay()
 // 타겟 인식 상태가 바뀔 때 호출될 델리게이트
 void AWarriorAIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	// 타겟 감지 시
+	// 블랙보드 컴포넌트 할당 및 if 체크
+	if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
+	{
+		// 타겟 오브젝트 확인
+		if (!BlackboardComponent->GetValueAsObject(FName("TargetActor")))
+		{
+			// 타겟 감지 시
+			if (Stimulus.WasSuccessfullySensed() && Actor)
+			{
+				// 적 인식 이용해 블랙보드 키 값 설정
+				BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
+			}
+		}
+	}
+	
+	
 	if (Stimulus.WasSuccessfullySensed() && Actor)
 	{
-		// 블랙보드 컴포넌트 할당 및 if 체크
+		
 		if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
 		{
-			// 적 인식 이용해 블랙보드 키 값 설정
+			
 			BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
 		}
 	}
