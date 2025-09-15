@@ -15,27 +15,33 @@ class WARRIOR_API UWarriorCharacterAnimInstance : public UWarriorBaseAnimInstanc
 	GENERATED_BODY()
 	
 public:
-	// AnimInstance ÃÊ±âÈ­ µÉ ¶§ È£Ãâ
+	// AnimInstance ì´ˆê¸°í™” ì‹œ í˜¸ì¶œ
 	virtual void NativeInitializeAnimation() override;
 
-	// ¾Ö´Ï¸ŞÀÌ¼Ç ¾²·¹µå¿¡¼­ µ¿ÀÛ, NativeUpdateAnimation¿¡¼­ ¼³Á¤ÇÑ Á¤º¸¸¦ Ã³¸®ÇÏ¿© ¾Ö´Ï¸ŞÀÌ¼ÇÀ» ¼³Á¤
+	// ì• ë‹ˆë©”ì´ì…˜ ìŠ¤ë ˆë“œì—ì„œ ì£¼ê¸°ì ìœ¼ë¡œ í˜¸ì¶œë¨
+	// NativeUpdateAnimationì—ì„œ ì²˜ë¦¬í•œ ë°ì´í„°ë¥¼ ê¸°ë°˜ìœ¼ë¡œ ì• ë‹ˆë©”ì´ì…˜ì„ ê°±ì‹ 
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
+	// ì†Œìœ  ì¤‘ì¸ ìºë¦­í„° ì°¸ì¡°
 	UPROPERTY()
-	// º£ÀÌ½º Ä³¸¯ÅÍ ÇÒ´ç º¯¼ö
 	class AWarriorBaseCharacter* OwningCharacter;
 
+	// ìºë¦­í„°ì˜ MovementComponent ì°¸ì¡°
 	UPROPERTY()
-	// Ä³¸¯ÅÍ ¿òÁ÷ÀÓ ÄÄÆ÷³ÍÆ®
 	class UCharacterMovementComponent* OwningMovementComponent;
 
+	// ì§€ìƒ ì´ë™ ì†ë„
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "AnimData|LocomotionData")
-	// ÀÌµ¿¼Óµµ
 	float GroundSpeed;
 
+	// ê°€ì† ì—¬ë¶€
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "AnimData|LocomotionData")
-	// °¡¼Ó ¿©ºÎ
 	bool bHasAcceleration;
+
+	// Locomotion ì´ë™ ë°©í–¥
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "AnimData|LocomotionData")
+	float LocomotionDirection;
+
 
 };
