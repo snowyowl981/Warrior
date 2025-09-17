@@ -26,6 +26,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	UEnemyCombatComponent* GetEnemyCombatComponentFromActorInfo();
 
+	// 적 대미지 효과 SpecHandle 생성 함수
+	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+	FGameplayEffectSpecHandle MakeEnemyDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, const FScalableFloat& InDamageScalableFloat);
+
 private:
 	// 적 캐릭터에 대한 캐시된 참조
 	// TWeakObjectPtr은 약한 참조를 의미하며, 소유권을 갖지 않고 가비지 컬렉션에 안전하게 대응 가능
