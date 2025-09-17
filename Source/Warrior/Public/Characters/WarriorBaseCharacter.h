@@ -9,7 +9,11 @@
 #include "Interfaces/PawnUIInterface.h"
 #include "WarriorBaseCharacter.generated.h"
 
-class UPawnCombatComponent;
+class UWarriorAbilitySystemComponent;
+class UWarriorAttributeSet;
+class UDataAsset_StartUpDataBase;
+class UMotionWarpingComponent;
+
 
 UCLASS()
 class WARRIOR_API AWarriorBaseCharacter : public ACharacter, public IAbilitySystemInterface, public IPawnCombatInterface, public IPawnUIInterface
@@ -39,15 +43,19 @@ protected:
 
 	// 어빌리티 시스템 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
-	class UWarriorAbilitySystemComponent* WarriorAbilitySystemComponent;
+	UWarriorAbilitySystemComponent* WarriorAbilitySystemComponent;
 
 	// 게임 플레이 속성
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
-	class UWarriorAttributeSet* WarriorAttributeSet;
+	UWarriorAttributeSet* WarriorAttributeSet;
+
+	// 모션 워핑 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
+	UMotionWarpingComponent* MotionWarpingComponent;
 
 	// 소프트 참조할 캐릭터 시작 데이터
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
-	TSoftObjectPtr<class UDataAsset_StartUpDataBase> CharacterStartUpData;
+	TSoftObjectPtr<UDataAsset_StartUpDataBase> CharacterStartUpData;
 
 public:
 	// get, set의 경우 가독성을 위헤 FORCEINLINE 사용
