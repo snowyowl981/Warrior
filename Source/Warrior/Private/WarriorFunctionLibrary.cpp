@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "Interfaces/PawnCombatInterface.h"
+#include "GenericTeamAgentInterface.h"
 
 // Actor로부터 Warrior 전용 AbilitySystemComponent를 가져오기
 // 반드시 존재해야 하므로 유효성 검사(check)를 수행하고, 실패 시 에디터에서 크래시가 발생
@@ -78,4 +79,23 @@ UPawnCombatComponent* UWarriorFunctionLibrary::BP_GetPawnCombatComponentFromActo
 
 	// 전투 컴포넌트를 반환.
 	return CombatComponent;
+}
+
+bool UWarriorFunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* TargetPawn)
+{
+	// 유효성 체크
+	check(QueryPawn && TargetPawn);
+
+	// 팀 에이전트 인터페이스 할당
+	IGenericTeamAgentInterface* QueryTeamAgent = Cast<IGenericTeamAgentInterface>(QueryPawn->GetController());
+	IGenericTeamAgentInterface* TargetTeamAgent = Cast<IGenericTeamAgentInterface>(TargetPawn->GetController());
+
+	// 유효성 체크 및 팀ID 같은지 확인
+	if (QueryTeamAgent && TargetTeamAgent)
+	{
+		// 같이 않으면 적대적
+		return QueryTeamAgent->GetGenericTeamId() != TargetTeamAgent->GetGenericTeamId();
+	}
+	// 같으면 우호적
+	return false;
 }

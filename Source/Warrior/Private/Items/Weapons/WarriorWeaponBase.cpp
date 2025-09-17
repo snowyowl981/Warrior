@@ -3,8 +3,10 @@
 
 #include "Items/Weapons/WarriorWeaponBase.h"
 #include "Components/BoxComponent.h"
+#include "WarriorFunctionLibrary.h"
 
 #include "WarriorDebugHelper.h"
+
 // Sets default values
 AWarriorWeaponBase::AWarriorWeaponBase()
 {
@@ -38,15 +40,15 @@ void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* Overlap
 	// 무기를 소유한 Pawn이 다른 Pawn을 타격했을 경우
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		// 플레이어에만 적용, 무기를 소유한 Pawn이 맞은 Pawn이 아닌 경우
-		if (WeaponOwningPawn != HitPawn)
+		// 적대관계 확인
+		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn, HitPawn))
 		{
 			// ExecuteIfBound : 싱글캐스트 델리게이트에 바인딩된 함수를 확인하고 존재하면 함수를 실행
 			OnWeaponHitTarget.ExecuteIfBound(OtherActor);
 		}
-
-		// TODO : Implement hit check for enemy Characters
 	}
+	
+	
 }
 
 void AWarriorWeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -60,13 +62,12 @@ void AWarriorWeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* Overlappe
 	// 무기를 소유한 Pawn이 다른 Pawn을 타격했을 경우
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		// 플레이어에만 적용, 무기를 소유한 Pawn이 맞은 Pawn이 아닌 경우
-		if (WeaponOwningPawn != HitPawn)
+		// 적대관계 확인
+		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn, HitPawn))
 		{
+			// 플레이어에만 적용, 무기를 소유한 Pawn이 맞은 Pawn이 아닌 경우
 			OnWeaponPulledFromTarget.ExecuteIfBound(OtherActor);
 		}
-
-		// TODO : Implement hit check for enemy Characters
 	}
 }
 
