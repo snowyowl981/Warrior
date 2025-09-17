@@ -40,6 +40,10 @@
 		{
 			"Name": "Fab",
 			"Enabled": false
+		},
+		{
+			"Name": "MotionWarping",
+			"Enabled": true
 		}
 	]
 }

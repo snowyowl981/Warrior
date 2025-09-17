@@ -4,6 +4,7 @@
 #include "Characters/WarriorBaseCharacter.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "AbilitySystem/WarriorAttributeSet.h"
+#include "MotionWarpingComponent.h"
 
 // Sets default values
 AWarriorBaseCharacter::AWarriorBaseCharacter()
@@ -14,9 +15,10 @@ AWarriorBaseCharacter::AWarriorBaseCharacter()
 
 	GetMesh()->bReceivesDecals = false;
 
-	// AbilitySystemComponent, AttributeSet 서브 객체 생성 후 캐스팅 및 할당
+	// 객체 생성 후 캐스팅 및 할당
 	WarriorAbilitySystemComponent	= CreateDefaultSubobject<UWarriorAbilitySystemComponent>(TEXT("WarriorAbilitySystemComponent"));
 	WarriorAttributeSet				= CreateDefaultSubobject<UWarriorAttributeSet>(TEXT("WarriorAttributeSet"));
+	MotionWarpingComponent			= CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
 // 어빌리티 시스템 컴포넌트 반환 함수
