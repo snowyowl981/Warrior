@@ -1,7 +1,9 @@
 // SnowyOwl All Rights Reserved
 
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
-#include "AbilitySystem/Abilities/WarriorGameplayAbility.h"
+#include "AbilitySystem/Abilities/WarriorHeroGameplayAbility.h"
+
+#include "WarriorDebugHelper.h"
 
 void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInputTag)
 {
@@ -81,4 +83,37 @@ void UWarriorAbilitySystemComponent::RemoveGrantedHeroWeaponAbilities(TArray<FGa
 
 	// 모든 능력 제거 후, 입력 배열을 비워서 사용 완료 표시
 	InSpecHandlesToRemove.Empty();
+}
+
+bool UWarriorAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate)
+{
+	// 전달받은 태그가 유효한지 체크 (에디터/개발 환경에서만 보장, 실패 시 crash)
+	check(AbilityTagToActivate.IsValid());
+
+	// 해당 태그와 매칭되는 어빌리티 스펙을 검색
+	TArray<FGameplayAbilitySpec*> FoundAbilitySpecs;
+	GetActivatableGameplayAbilitySpecsByAllMatchingTags(
+		AbilityTagToActivate.GetSingleTagContainer(),		// 검색할 태그 컨테이너
+		FoundAbilitySpecs								// 결과로 채워질 배열
+	);
+
+	// IsEmpty가 아니면 진입
+	if (!FoundAbilitySpecs.IsEmpty())
+	{
+		// 매칭된 어빌리티 중 무작위 선택
+		const int32 RandomAbilityIndex = FMath::RandRange(0, FoundAbilitySpecs.Num() - 1);
+		FGameplayAbilitySpec* SpecToActivate = FoundAbilitySpecs[RandomAbilityIndex];
+
+		// nullptr 방지 체크
+		check(SpecToActivate);
+
+		// 이미 활성화 중인 어빌리티가 아니라면 실행 시도
+		if (!SpecToActivate->IsActive())
+		{
+			return TryActivateAbility(SpecToActivate->Handle);
+		}
+	}
+
+	// 조건에 맞는 어빌리티를 찾지 못했거나 실행 실패 시 false 반환
+	return false;
 }
