@@ -11,6 +11,8 @@
 class UWarriorAbilitySystemComponent;
 class UPawnCombatComponent;
 
+struct FScalableFloat;
+
 /**
  * 유틸리티 함수들을 포함한 정적 함수 라이브러리 클래스
  * 블루프린트에서도 호출 가능하며, 주로 Actor와 GameplayTag 관련 기능을 제공
@@ -70,6 +72,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Warrior|FunctionLibrary", meta = (DisplayName = "Get PawnCombatComponent From Actor", ExpandEnumAsExecs = "OutValidType"))
 	static UPawnCombatComponent* BP_GetPawnCombatComponentFromActor(AActor* InActor, EWarriorValidType& OutValidType);
 
+	// 타겟 폰 적대 확인
 	UFUNCTION(BlueprintPure, Category = "Warrior|FunctionLibrary")
 	static bool IsTargetPawnHostile(APawn* QueryPawn, APawn* TargetPawn);
+
+	// 레벨에 따른 ScalableFloat 가져오기
+	UFUNCTION(BlueprintPure, Category = "Warrior|FunctionLibrary", meta=(CompactNodeTitle = "Get Value At Level"))
+	static float GetScalableFloatValueAtLevel(const FScalableFloat& InScalableFloat, float InLevel = 1.f);
 };

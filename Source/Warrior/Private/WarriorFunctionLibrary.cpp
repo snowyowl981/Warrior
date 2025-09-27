@@ -99,3 +99,9 @@ bool UWarriorFunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* Targe
 	// 같으면 우호적
 	return false;
 }
+
+float UWarriorFunctionLibrary::GetScalableFloatValueAtLevel(const FScalableFloat& InScalableFloat, float InLevel)
+{
+	// 레벨에 따른 ScalableFloat 반환
+	return InScalableFloat.GetValueAtLevel(InLevel);
+}
