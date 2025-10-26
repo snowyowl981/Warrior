@@ -81,14 +81,14 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		// 현재 체력 설정
 		SetCurrentHealth(NewCurrentHealth);
 
-		const FString DebugString = FString::Printf(
-			TEXT("Old Health : %f, Damage Done : %f, NewCurrentHealth : %f"),
-			OldHealth,
-			DamageDone,
-			NewCurrentHealth
-		);
-
-		Debug::Print(DebugString, FColor::Red);
+		// const FString DebugString = FString::Printf(
+		// 	TEXT("Old Health : %f, Damage Done : %f, NewCurrentHealth : %f"),
+		// 	OldHealth,
+		// 	DamageDone,
+		// 	NewCurrentHealth
+		// );
+		//
+		// Debug::Print(DebugString, FColor::Red);
 
 		// UI에 알림 표시
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth() / GetMaxHealth());

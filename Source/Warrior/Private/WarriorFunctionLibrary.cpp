@@ -6,6 +6,7 @@
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "Interfaces/PawnCombatInterface.h"
 #include "GenericTeamAgentInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Actor로부터 Warrior 전용 AbilitySystemComponent를 가져오기
 // 반드시 존재해야 하므로 유효성 검사(check)를 수행하고, 실패 시 에디터에서 크래시가 발생
@@ -104,4 +105,30 @@ float UWarriorFunctionLibrary::GetScalableFloatValueAtLevel(const FScalableFloat
 {
 	// 레벨에 따른 ScalableFloat 반환
 	return InScalableFloat.GetValueAtLevel(InLevel);
+}
+
+FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim, float& OutAngleDifference)
+{
+	// 액터 nullptr 체크
+	check(InAttacker && InVictim);
+
+	// 피격자 전방 벡터, 피격자->타격자 정규화 벡터 산출
+	const FVector VictimForward = InVictim->GetActorForwardVector();
+	const FVector VicitimToAttackerNormalized = (InAttacker->GetActorLocation() - InVictim->GetActorLocation()).GetSafeNormal();
+
+	// 벡터 내적 계산
+	const float DotResult = FVector::DotProduct(VictimForward, VicitimToAttackerNormalized);
+	// 벡터 간 회전각 계산
+	OutAngleDifference = UKismetMathLibrary::DegAcos(DotResult);
+	// 벡터 외적 계산 
+	const FVector CrossResult = FVector::CrossProduct(VictimForward, VicitimToAttackerNormalized);
+
+	// 공격자 방향 좌우 계산 (외적 Z값이 음수면 피격자가 타격자 좌측)
+	if (CrossResult.Z < 0.f)
+	{
+		OutAngleDifference *= -1.f;
+	}
+
+	return FGameplayTag();
+	
 }

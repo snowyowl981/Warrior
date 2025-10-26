@@ -79,4 +79,8 @@ public:
 	// 레벨에 따른 ScalableFloat 가져오기
 	UFUNCTION(BlueprintPure, Category = "Warrior|FunctionLibrary", meta=(CompactNodeTitle = "Get Value At Level"))
 	static float GetScalableFloatValueAtLevel(const FScalableFloat& InScalableFloat, float InLevel = 1.f);
+
+	// HitReact 방향
+	UFUNCTION(BlueprintPure, Category = "Warrior|FunctionLibrary")
+	static FGameplayTag ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim, float& OutAngleDifference);
 };
