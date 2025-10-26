@@ -7,6 +7,7 @@
 #include "Interfaces/PawnCombatInterface.h"
 #include "GenericTeamAgentInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "WarriorGameplayTags.h"
 
 // Actor로부터 Warrior 전용 AbilitySystemComponent를 가져오기
 // 반드시 존재해야 하므로 유효성 검사(check)를 수행하고, 실패 시 에디터에서 크래시가 발생
@@ -129,6 +130,23 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 		OutAngleDifference *= -1.f;
 	}
 
-	return FGameplayTag();
+	if (OutAngleDifference >= -45.f && OutAngleDifference <= 45.f)
+	{
+		return WarriorGameplayTags::Shared_Status_HitReact_Front;
+	}
+	else if (OutAngleDifference < -45.f && OutAngleDifference >= -135.f)
+	{
+		return WarriorGameplayTags::Shared_Status_HitReact_Left;
+	}
+	else if (OutAngleDifference < -135.f || OutAngleDifference > 135.f)
+	{
+		return WarriorGameplayTags::Shared_Status_HitReact_Back;
+	}
+	else if (OutAngleDifference > 45.f && OutAngleDifference <= 135.f)
+	{
+		return WarriorGameplayTags::Shared_Status_HitReact_Right;
+	}
+
+	return WarriorGameplayTags::Shared_Status_HitReact_Front;
 	
 }
