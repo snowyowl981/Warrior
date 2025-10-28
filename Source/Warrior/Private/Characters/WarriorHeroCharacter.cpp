@@ -160,12 +160,12 @@ void AWarriorHeroCharacter::Input_Look(const FInputActionValue& InputActionValue
 
 void AWarriorHeroCharacter::Input_AbilityInputPressed(FGameplayTag InputTag)
 {
-	// 시스템 컴포넌트에 태그 전달
+	// 시스템 컴포넌트에 눌렀음 태그 전달
 	WarriorAbilitySystemComponent->OnAbilityInputPressed(InputTag);
 }
 
 void AWarriorHeroCharacter::Input_AbilityInputReleased(FGameplayTag InputTag)
 {
-	// 시스템 컴포넌트에 태그 전달
+	// 시스템 컴포넌트에 뗐음 태그 전달
 	WarriorAbilitySystemComponent->OnAbilityInputReleased(InputTag);
 }
