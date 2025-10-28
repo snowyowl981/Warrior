@@ -130,23 +130,29 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 		OutAngleDifference *= -1.f;
 	}
 
+	// 맞은 방향 따라 태그 반환 로직 (원을 X자로 나눠 각도에 따라 맞는 방향 태그를 반환)
 	if (OutAngleDifference >= -45.f && OutAngleDifference <= 45.f)
 	{
+		// 앞쪽
 		return WarriorGameplayTags::Shared_Status_HitReact_Front;
 	}
 	else if (OutAngleDifference < -45.f && OutAngleDifference >= -135.f)
 	{
+		// 왼쪽
 		return WarriorGameplayTags::Shared_Status_HitReact_Left;
 	}
 	else if (OutAngleDifference < -135.f || OutAngleDifference > 135.f)
 	{
+		// 뒤쪽
 		return WarriorGameplayTags::Shared_Status_HitReact_Back;
 	}
 	else if (OutAngleDifference > 45.f && OutAngleDifference <= 135.f)
 	{
+		// 오른쪽
 		return WarriorGameplayTags::Shared_Status_HitReact_Right;
 	}
-
+	
+	// 기본적으로 앞쪽 반환
 	return WarriorGameplayTags::Shared_Status_HitReact_Front;
 	
 }
