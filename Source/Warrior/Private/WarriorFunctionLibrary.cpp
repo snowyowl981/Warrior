@@ -9,6 +9,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "WarriorGameplayTags.h"
 
+#include "WarriorDebugHelper.h"
+
 // Actor로부터 Warrior 전용 AbilitySystemComponent를 가져오기
 // 반드시 존재해야 하므로 유효성 검사(check)를 수행하고, 실패 시 에디터에서 크래시가 발생
 UWarriorAbilitySystemComponent* UWarriorFunctionLibrary::NativeWarriorASCFromActor(AActor* InActor)
@@ -117,7 +119,7 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 	const FVector VictimForward = InVictim->GetActorForwardVector();
 	const FVector VicitimToAttackerNormalized = (InAttacker->GetActorLocation() - InVictim->GetActorLocation()).GetSafeNormal();
 
-	// 벡터 내적 계산
+	// 벡터 간 관계 계산 (1 : 두 벡터가 같은 방향, 0 : 두 벡터가 수직, -1 : 두 벡터가 반대 방향)
 	const float DotResult = FVector::DotProduct(VictimForward, VicitimToAttackerNormalized);
 	// 벡터 간 회전각 계산
 	OutAngleDifference = UKismetMathLibrary::DegAcos(DotResult);
@@ -155,4 +157,16 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 	// 기본적으로 앞쪽 반환
 	return WarriorGameplayTags::Shared_Status_HitReact_Front;
 	
+}
+
+bool UWarriorFunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
+{
+	// 포인터 체크
+	check(InAttacker && InDefender);
+	// 두 액터의 정면 벡터 간 관계 계산
+	const float DotResult = FVector::DotProduct(InAttacker->GetActorForwardVector(), InDefender->GetActorForwardVector());
+	// 두 벡터가 거의 마주 볼 경우에만 유효한 가드
+	const bool bIsValidBlock = (DotResult < -0.3f) ? true : false;
+	// 가드 유효성 반환
+	return bIsValidBlock;
 }
