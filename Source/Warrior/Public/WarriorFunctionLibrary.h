@@ -43,7 +43,7 @@ public:
 	 * @param TagToRemove	제거할 GameplayTag
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Warrior|FunctionLibrary")
-	static void RemoveGameplayFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove);
+	static void RemoveGameplayTagFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove);
 
 	// Actor가 특정 GameplayTag를 가지고 있는지 확인 (C++ 전용)
 	static bool NativeDoesActorHaveTag(AActor* InActor, FGameplayTag TagToCheck);
