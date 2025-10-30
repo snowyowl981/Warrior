@@ -46,7 +46,7 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 
 	// EnemyHealthWidgetComponent 생성 및 초기화, 캐릭터 메쉬에 부착
 	EnemyHealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("EnemyHealthWidgetComponent");
-	EnemyHealthWidgetComponent->SetupAttachment(GetMesh());
+	EnemyHealthWidgetComponent->SetupAttachment(GetMesh()); 
 }
 
 UPawnCombatComponent* AWarriorEnemyCharacter::GetCombatComponent() const

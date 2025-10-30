@@ -4,6 +4,7 @@
 #include "Components/Combat/EnemyCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "WarriorGameplayTags.h"
+#include "WarriorFunctionLibrary.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -23,13 +24,13 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	// 가드 유효성 여부
 	bool bIsValidBlock = false;
 	
-	const bool bIsPlayerBlocking = false;			// 플레이어 가드 중인지 여부
+	const bool bIsPlayerBlocking = UWarriorFunctionLibrary::NativeDoesActorHaveTag(HitActor, WarriorGameplayTags::Player_Status_Blocking);
 	const bool bIsMyAttackUnblockable = false;		// 가드 불가 공격 여부
 	
 	// 플레이어 가드 중, 가불기 아닐 때
 	if (bIsPlayerBlocking && !bIsMyAttackUnblockable)
 	{
-		// TODO::Check if the block is valid
+		bIsValidBlock = UWarriorFunctionLibrary::IsValidBlock(GetOwningPawn(), HitActor);
 	}
 	
 	// 이벤트 데이터 로컬 변수 선언 및 속성값 설정
@@ -40,7 +41,12 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	// 가드 유효 시
 	if (bIsValidBlock)
 	{
-		// TODO::Handle successful block
+		// 액터로 게임플레이 이벤트 전송
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			HitActor,
+			WarriorGameplayTags::Player_Event_SuccessfulBlock,
+			EventData
+		);
 	}
 	// 가드 무효 시 대미지 계산
 	else
