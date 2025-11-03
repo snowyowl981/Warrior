@@ -5,6 +5,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Widgets/WarriorWidgetBase.h"
+#include "Controllers/WarriorHeroController.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -34,7 +36,7 @@ void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 
 	if (CurrentLockedActor)
 	{
-		Debug::Print(CurrentLockedActor->GetActorNameOrLabel());
+		DrawTargetLockWidget();
 	}
 	else
 	{
@@ -74,9 +76,6 @@ void UHeroGameplayAbility_TargetLock::GetAvailableActorsToLock()
 			{
 				// 중복 없이 액터를 목록에 추가
 				AvailableActorsToLock.AddUnique(HitActor);
-
-				// 디버그용으로 액터 이름 출력
-				Debug::Print(HitActor->GetActorNameOrLabel());
 			}
 		}
 	}
@@ -86,6 +85,21 @@ AActor* UHeroGameplayAbility_TargetLock::GetNearestTargetFromAvailableActor(cons
 {
 	float ClosestDistance = 0.f;
 	return UGameplayStatics::FindNearestActor(GetHeroCharacterFromActorInfo()->GetActorLocation(), InAvailableActors, ClosestDistance);
+}
+
+void UHeroGameplayAbility_TargetLock::DrawTargetLockWidget()
+{
+	if (!DrawnTargetLockWidget)
+	{
+		checkf(TargetLockWidgetClass, TEXT("Forgot to assign a valid widget class in Blueprint"));
+
+		DrawnTargetLockWidget = CreateWidget<UWarriorWidgetBase>(GetHeroControllerFromActorInfo(), TargetLockWidgetClass);
+
+		check(DrawnTargetLockWidget);
+
+		DrawnTargetLockWidget->AddToViewport();
+	}
+	
 }
 
 void UHeroGameplayAbility_TargetLock::CancelTargetLockAbility()
@@ -98,4 +112,9 @@ void UHeroGameplayAbility_TargetLock::CleanUp()
 	AvailableActorsToLock.Empty();
 
 	CurrentLockedActor = nullptr;
+
+	if (DrawnTargetLockWidget)
+	{
+		DrawnTargetLockWidget->RemoveFromParent();
+	}
 }
