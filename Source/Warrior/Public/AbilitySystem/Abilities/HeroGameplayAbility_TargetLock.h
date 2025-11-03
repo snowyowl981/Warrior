@@ -62,6 +62,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
 	TSubclassOf<UWarriorWidgetBase> TargetLockWidgetClass;
 
+	// 타겟 고정 회전 보간 속도
+	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
+	float TargetLockRotationInterpSpeed = 5.f;
+
 	// 현재 고정 가능한 액터들을 저장하는 배열
 	UPROPERTY()
 	TArray<AActor*> AvailableActorsToLock;
