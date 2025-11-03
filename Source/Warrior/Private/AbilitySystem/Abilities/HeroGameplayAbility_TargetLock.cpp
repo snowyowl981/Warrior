@@ -7,37 +7,49 @@
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/WarriorWidgetBase.h"
 #include "Controllers/WarriorHeroController.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/SizeBox.h"
 
 #include "WarriorDebugHelper.h"
 
 void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	// 타겟 고정
 	TryLockOnTarget();
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	// 
 	CleanUp();
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 {
+	// 고정할 유효 액터들 배열 설정
 	GetAvailableActorsToLock();
 
+	// 액터 배열이 비었을 경우 타겟 고정 취소 및 함수 종료
 	if (AvailableActorsToLock.IsEmpty())
 	{
 		CancelTargetLockAbility();
 		return;
 	}
 
+	// 현재 고정된 액터를 배열 내에서 가장 가까운 액터로 설정
 	CurrentLockedActor = GetNearestTargetFromAvailableActor(AvailableActorsToLock);
 
+	// 현재 고정된 액터가 유효한 경우 위젯 그리기
 	if (CurrentLockedActor)
 	{
 		DrawTargetLockWidget();
+
+		SetTargetLockWidgetPosition();
 	}
+	// 고정된 액터가 유효하지 않은 경우 타겟 고정 취소
 	else
 	{
 		CancelTargetLockAbility();
@@ -84,22 +96,81 @@ void UHeroGameplayAbility_TargetLock::GetAvailableActorsToLock()
 AActor* UHeroGameplayAbility_TargetLock::GetNearestTargetFromAvailableActor(const TArray<AActor*>& InAvailableActors)
 {
 	float ClosestDistance = 0.f;
+	// 가장 가까운 액터 찾아 반환
 	return UGameplayStatics::FindNearestActor(GetHeroCharacterFromActorInfo()->GetActorLocation(), InAvailableActors, ClosestDistance);
 }
 
 void UHeroGameplayAbility_TargetLock::DrawTargetLockWidget()
 {
+	// Target Lock 위젯이 아직 생성되지 않았다면 실행
 	if (!DrawnTargetLockWidget)
 	{
+		// 블루프린트에서 TargetLockWidgetClass 설정이 누락되었는지 확인
+		// 설정되지 않았다면 런타임에서 에러 메시지 출력 후 종료
 		checkf(TargetLockWidgetClass, TEXT("Forgot to assign a valid widget class in Blueprint"));
 
-		DrawnTargetLockWidget = CreateWidget<UWarriorWidgetBase>(GetHeroControllerFromActorInfo(), TargetLockWidgetClass);
+		// Hero의 컨트롤러를 Owning Player로 하여 Target Lock 위젯 생성
+		DrawnTargetLockWidget = CreateWidget<UWarriorWidgetBase>(
+			GetHeroControllerFromActorInfo(),	// 위젯의 Owning Player 지정
+			TargetLockWidgetClass				// 위젯 클래스 (블루프린트에서 지정)
+		);
 
+		// 위젯 생성이 실제로 성공했는지 확인 (nullptr 방지)
 		check(DrawnTargetLockWidget);
 
+		// 생성된 위젯을 뷰포트에 추가하여 화면에 표시
 		DrawnTargetLockWidget->AddToViewport();
 	}
 	
+}
+
+void UHeroGameplayAbility_TargetLock::SetTargetLockWidgetPosition()
+{
+	// 타겟 고정 위젯과 현재 고정된 액터 둘 중 하나라도 유효하지 않은 경우
+	if (!DrawnTargetLockWidget || !CurrentLockedActor)
+	{
+		// 어빌리티 취소 및 리턴
+		CancelTargetLockAbility();
+		return;
+	}
+
+	// 화면 내에서 위젯이 표시될 2D 좌표
+	FVector2D ScreenPosition;
+
+	// 현재 락온된 액터의 월드 위치를 화면상의 좌표로 변환
+	// (즉, 3D 공간에서의 액터 위치를 2D UI 화면 위치로 매핑)
+	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(
+		GetHeroControllerFromActorInfo(),				// 투영 기준이 되는 플레이어 컨트롤러
+		CurrentLockedActor->GetActorLocation(),			// 변환할 월드 위치 (현재 락온된 액터의 위치)
+		ScreenPosition,                             // 결과로 받을 2D 스크린 좌표
+		true											// 플레이어의 뷰포트 기준으로 위치 계산
+	);
+
+	// 위젯 크기가 아직 계산되지 않았다면 (처음 한 번만 계산하도록)
+	if (TargetLockWidgetSize == FVector2D::ZeroVector)
+	{
+		// 위젯 트리 전체를 순회하며 내부 위젯을 검사
+		DrawnTargetLockWidget->WidgetTree->ForEachWidget(
+		   [this](UWidget* FoundWidget)
+		   {
+			  // SizeBox 위젯을 찾으면, 그 위젯의 설정된 Width/Height를 참조하여 크기 저장
+			  if (USizeBox* FoundSizeBox = Cast<USizeBox>(FoundWidget))
+			  {
+				 TargetLockWidgetSize.X = FoundSizeBox->GetWidthOverride();
+				 TargetLockWidgetSize.Y = FoundSizeBox->GetHeightOverride();
+			  }
+		   }
+		);
+	}
+
+	// 계산된 크기를 기준으로, 위젯을 좌표의 중앙에 위치하도록 보정
+	// ProjectWorldLocationToWidgetPosition은 좌상단 기준이므로
+	// 위젯 크기의 절반만큼 좌표를 이동시켜 정중앙 정렬
+	ScreenPosition -= (TargetLockWidgetSize / 2.f);
+	
+	// 계산된 화면 좌표로 타겟 락 위젯 위치를 갱신
+	// false = UI 정렬(offset) 적용 안 함 (정확한 좌표 그대로 사용)
+	DrawnTargetLockWidget->SetPositionInViewport(ScreenPosition, false);
 }
 
 void UHeroGameplayAbility_TargetLock::CancelTargetLockAbility()
@@ -109,10 +180,13 @@ void UHeroGameplayAbility_TargetLock::CancelTargetLockAbility()
 
 void UHeroGameplayAbility_TargetLock::CleanUp()
 {
+	// 액터 배열 비우기
 	AvailableActorsToLock.Empty();
 
+	// 현재 고정된 액터 nullptr로
 	CurrentLockedActor = nullptr;
 
+	// 위젯이 화면에 표시중이라면 제거
 	if (DrawnTargetLockWidget)
 	{
 		DrawnTargetLockWidget->RemoveFromParent();
