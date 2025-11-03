@@ -12,6 +12,7 @@
 #include "Components/SizeBox.h"
 #include "WarriorFunctionLibrary.h"
 #include "WarriorGameplayTags.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -43,6 +44,40 @@ void UHeroGameplayAbility_TargetLock::OnTargetLockTick(float DeltaTime)
 
 	// 목표 잠금 위치 지속 설정
 	SetTargetLockWidgetPosition();
+
+	// 캐릭터의 회전을 덮어쓸 수 있는지 여부를 결정하는 조건 (회피 중이거나 방어 중이 아닐 때)
+	const bool bShouldOverrideRotation =
+		!UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(), WarriorGameplayTags::Player_Status_Rolling)
+	&&
+		!UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(), WarriorGameplayTags::Player_Status_Blocking);
+
+	// 회전 덮어쓰기가 가능한 상태일 때만 실행
+	if (bShouldOverrideRotation)
+	{
+		// 캐릭터 위치에서 현재 락온된 액터를 바라보는 회전값 계산
+		const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+			GetHeroCharacterFromActorInfo()->GetActorLocation(),    // 시작 위치 (플레이어)
+			CurrentLockedActor->GetActorLocation()                  // 목표 위치 (락온된 대상)
+		);
+
+		// 현재 컨트롤러(카메라)의 회전값
+		const FRotator CurrentControlRot = GetHeroControllerFromActorInfo()->GetControlRotation();
+
+		// 현재 회전에서 목표 회전으로 부드럽게 보간 (DeltaTime 기반)
+		const FRotator TargetRot = FMath::RInterpTo(
+			CurrentControlRot,					// 현재 회전값
+			LookAtRot,							// 목표 회전값
+			DeltaTime,							// 프레임 보정(시간 기반)
+			TargetLockRotationInterpSpeed		// 회전 속도 (블렌딩 정도)
+		);
+
+		// 컨트롤러(카메라) 회전 적용: Pitch, Yaw만 반영하고 Roll은 0으로 고정
+		GetHeroControllerFromActorInfo()->SetControlRotation(FRotator(TargetRot.Pitch, TargetRot.Yaw, 0.f));
+
+		// 캐릭터 메쉬 자체도 동일한 방향으로 회전시킴 (수평 회전만 적용)
+		GetHeroCharacterFromActorInfo()->SetActorRotation(FRotator(0.f, TargetRot.Yaw, 0.f));
+	}
+			
 }
 
 void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
@@ -60,7 +95,7 @@ void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 	// 현재 고정된 액터를 배열 내에서 가장 가까운 액터로 설정
 	CurrentLockedActor = GetNearestTargetFromAvailableActor(AvailableActorsToLock);
 
-	// 현재 고정된 액터가 유효한 경우 위젯 그리기
+	// 현재 고정된 액터가 유효한 경우 위젯 그리기, 위젯 위치 설정
 	if (CurrentLockedActor)
 	{
 		DrawTargetLockWidget();
@@ -210,7 +245,9 @@ void UHeroGameplayAbility_TargetLock::CleanUp()
 		DrawnTargetLockWidget->RemoveFromParent();
 	}
 
+	// 위젯 nullptr로
 	DrawnTargetLockWidget = nullptr;
 
+	// 사이즈 초기화
 	TargetLockWidgetSize = FVector2D::ZeroVector;
 }
