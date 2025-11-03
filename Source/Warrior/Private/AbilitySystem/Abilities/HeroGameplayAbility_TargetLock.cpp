@@ -10,6 +10,8 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/SizeBox.h"
+#include "WarriorFunctionLibrary.h"
+#include "WarriorGameplayTags.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -25,6 +27,22 @@ void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandl
 	// 어빌리티 종료 시 정리 로직 실행
 	CleanUp();
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UHeroGameplayAbility_TargetLock::OnTargetLockTick(float DeltaTime)
+{
+	// 현재 고정된 액터가 존재하지 않거나, 고정된 액터가 죽은 상태거나, 영웅 캐릭터가 죽은 상태면 타겟 고정 취소 및 함수 종료
+	if (!CurrentLockedActor ||
+		UWarriorFunctionLibrary::NativeDoesActorHaveTag(CurrentLockedActor, WarriorGameplayTags::Shared_Status_Dead) ||
+		UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(), WarriorGameplayTags::Shared_Status_Dead)
+		)
+	{
+		CancelTargetLockAbility();
+		return;
+	}
+
+	// 목표 잠금 위치 지속 설정
+	SetTargetLockWidgetPosition();
 }
 
 void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
@@ -191,4 +209,8 @@ void UHeroGameplayAbility_TargetLock::CleanUp()
 	{
 		DrawnTargetLockWidget->RemoveFromParent();
 	}
+
+	DrawnTargetLockWidget = nullptr;
+
+	TargetLockWidgetSize = FVector2D::ZeroVector;
 }
