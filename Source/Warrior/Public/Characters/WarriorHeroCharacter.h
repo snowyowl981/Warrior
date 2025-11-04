@@ -70,6 +70,9 @@ private:
 	void Input_SwitchTargetTriggered(const struct FInputActionValue& InputActionValue);
 	void Input_SwitchTargetCompleted(const struct FInputActionValue& InputActionValue);
 
+	// 방향 전환 FVector 변수 (락온 타겟 변경에 사용)
+	FVector2D SwitchDirection = FVector2D::ZeroVector;
+
 	// 어빌리티 인풋 눌렀을 때
 	void Input_AbilityInputPressed(FGameplayTag InputTag);
 	// 어빌리티 인풋 뗏을 때

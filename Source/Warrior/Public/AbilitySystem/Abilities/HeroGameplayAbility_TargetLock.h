@@ -27,14 +27,17 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void OnTargetLockTick(float DeltaTime);
 	
-	
+	UFUNCTION(BlueprintCallable)
+	void SwitchTarget(const FGameplayTag& InSwitchDirectionTag);
 private:
 	// 타겟 고정 시도
 	void TryLockOnTarget();
 	// 고정할 유효 액터들 배열 설정
 	void GetAvailableActorsToLock();
-	// 유효한 액터 중 가장 가까운 액터 반환
+	// 유효한 액터 중 가장 가까운 액터 가져오기
 	AActor* GetNearestTargetFromAvailableActor(const TArray<AActor*>& InAvailableActors);
+	// 락온된 타겟 주변 유효한 액터 가져오기
+	void GetAvailableActorsAroundTarget(TArray<AActor*>& OutActorsOnLeft, TArray<AActor*>& OutActorsOnRight);
 	// 타겟 고정 위젯 그리기
 	void DrawTargetLockWidget();
 	// 타겟 고정 위젯 위치 설정
@@ -103,3 +106,6 @@ private:
 	UPROPERTY()
 	float CachedDefaultMaxWalkSpeed = 0.f;
 };
+
+
+
