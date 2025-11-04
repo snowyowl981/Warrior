@@ -7,6 +7,7 @@
 #include "HeroGameplayAbility_TargetLock.generated.h"
 
 class UWarriorWidgetBase;
+class UInputMappingContext;
 
 /**
  * 
@@ -40,12 +41,17 @@ private:
 	void SetTargetLockWidgetPosition();
 	// 타겟 고정 움직임 초기화
 	void InitTargetLockMovement();
+	// 타겟 고정 매핑 컨텍스트 초기화
+	void InitTargetLockMappingContext();
+	
 	// 타겟 고정 어빌리티 취소
 	void CancelTargetLockAbility();
 	// 고정 어빌리티 취소 시 정리
 	void CleanUp();
 	// 타겟 고정 움직임 재설정
 	void ResetTargetLockMovement();
+	// 타겟 고정 매핑 컨텍스트 재설정
+	void ResetTargetLockMappingContext();
 
 	//~ Begin 박스 트레이스 충돌 탐지용 변수
 	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
@@ -69,8 +75,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
 	float TargetLockRotationInterpSpeed = 5.f;
 
+	// 타겟 고정 시 최대 이동 속도
 	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
 	float TargetLockMaxWalkSpeed = 150.f;
+
+	// 타겟 고정 매핑 컨텍스트
+	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
+	UInputMappingContext* TargetLockMappingContext;
 
 	// 현재 고정 가능한 액터들을 저장하는 배열
 	UPROPERTY()
