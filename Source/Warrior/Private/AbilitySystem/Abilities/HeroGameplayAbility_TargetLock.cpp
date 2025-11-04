@@ -92,6 +92,29 @@ void UHeroGameplayAbility_TargetLock::OnTargetLockTick(float DeltaTime)
 			
 }
 
+void UHeroGameplayAbility_TargetLock::SwitchTarget(const FGameplayTag& InSwitchDirectionTag)
+{
+	GetAvailableActorsToLock();
+
+	TArray<AActor*> ActorsOnLeft, ActorsOnRight;
+	AActor* NewTargetToLock = nullptr;
+	GetAvailableActorsAroundTarget(ActorsOnLeft, ActorsOnRight);
+
+	if (InSwitchDirectionTag == WarriorGameplayTags::Player_Event_SwitchTarget_Left)
+	{
+		NewTargetToLock = GetNearestTargetFromAvailableActor(ActorsOnLeft);
+	}
+	else
+	{
+		NewTargetToLock = GetNearestTargetFromAvailableActor(ActorsOnRight);
+	}
+
+	if (NewTargetToLock)
+	{
+		CurrentLockedActor = NewTargetToLock;
+	}
+}
+
 void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 {
 	// 고정할 유효 액터들 배열 설정
@@ -123,6 +146,9 @@ void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 
 void UHeroGameplayAbility_TargetLock::GetAvailableActorsToLock()
 {
+	// 락온 가능 액터 배열 비우기 
+	AvailableActorsToLock.Empty();
+	
 	// 박스 트레이스의 충돌 결과를 담을 배열 선언
 	TArray<FHitResult> BoxTraceHits;
     
@@ -154,6 +180,36 @@ void UHeroGameplayAbility_TargetLock::GetAvailableActorsToLock()
 				// 중복 없이 액터를 목록에 추가
 				AvailableActorsToLock.AddUnique(HitActor);
 			}
+		}
+	}
+}
+
+void UHeroGameplayAbility_TargetLock::GetAvailableActorsAroundTarget(TArray<AActor*>& OutActorsOnLeft, TArray<AActor*>& OutActorsOnRight)
+{
+	if (!CurrentLockedActor || AvailableActorsToLock.IsEmpty())
+	{
+		CancelTargetLockAbility();
+		return;
+	}
+
+	const FVector PlayerLocation = GetHeroCharacterFromActorInfo()->GetActorLocation();
+	const FVector PlayerToCurrentNormalized = (CurrentLockedActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
+
+	for (AActor* AvailableActor : AvailableActorsToLock)
+	{
+		if (!AvailableActor || AvailableActor == CurrentLockedActor) continue;
+
+		const FVector PlayerToAvailableNormalized = (AvailableActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
+
+		const FVector CrossResult = FVector::CrossProduct(PlayerToCurrentNormalized, PlayerToAvailableNormalized);
+
+		if (CrossResult.Z > 0.f)
+		{
+			OutActorsOnRight.AddUnique(AvailableActor);
+		}
+		else
+		{
+			OutActorsOnLeft.AddUnique(AvailableActor);
 		}
 	}
 }
