@@ -66,6 +66,10 @@ private:
 	// 카메라 입력 함수
 	void Input_Look(const struct FInputActionValue& InputActionValue);
 
+	// 타겟 변경 입력 함수
+	void Input_SwitchTargetTriggered(const struct FInputActionValue& InputActionValue);
+	void Input_SwitchTargetCompleted(const struct FInputActionValue& InputActionValue);
+
 	// 어빌리티 인풋 눌렀을 때
 	void Input_AbilityInputPressed(FGameplayTag InputTag);
 	// 어빌리티 인풋 뗏을 때

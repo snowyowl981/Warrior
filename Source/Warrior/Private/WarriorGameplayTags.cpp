@@ -20,6 +20,8 @@ namespace WarriorGameplayTags
 
 	// 구르기 인풋태그
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Roll, "InputTag.Roll");
+	// 타겟 변경 인풋태그
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_SwitchTarget, "InputTag.SwitchTarget");
 
 	// 누르고 있기 인풋태그, 막기
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_MustBeHeld, "InputTag.MustBeHeld");
