@@ -38,11 +38,14 @@ private:
 	void DrawTargetLockWidget();
 	// 타겟 고정 위젯 위치 설정
 	void SetTargetLockWidgetPosition();
-
+	// 타겟 고정 움직임 초기화
+	void InitTargetLockMovement();
 	// 타겟 고정 어빌리티 취소
 	void CancelTargetLockAbility();
 	// 고정 어빌리티 취소 시 정리
 	void CleanUp();
+	// 타겟 고정 움직임 재설정
+	void ResetTargetLockMovement();
 
 	//~ Begin 박스 트레이스 충돌 탐지용 변수
 	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
@@ -66,6 +69,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
 	float TargetLockRotationInterpSpeed = 5.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "TargetLock")
+	float TargetLockMaxWalkSpeed = 150.f;
+
 	// 현재 고정 가능한 액터들을 저장하는 배열
 	UPROPERTY()
 	TArray<AActor*> AvailableActorsToLock;
@@ -78,6 +84,11 @@ private:
 	UPROPERTY()
 	UWarriorWidgetBase* DrawnTargetLockWidget;
 
+	// 타겟 고정 위젯 사이즈
 	UPROPERTY()
 	FVector2D TargetLockWidgetSize = FVector2D::ZeroVector;
+
+	// 기본 최대 걷기 속도 캐싱
+	UPROPERTY()
+	float CachedDefaultMaxWalkSpeed = 0.f;
 };

@@ -13,6 +13,7 @@
 #include "WarriorFunctionLibrary.h"
 #include "WarriorGameplayTags.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -20,13 +21,19 @@ void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpec
 {
 	// 타겟 고정
 	TryLockOnTarget();
+	// 타겟 고정 시 이동속도 설정
+	InitTargetLockMovement();
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	// 이동 속도 재설정
+	ResetTargetLockMovement();
 	// 어빌리티 종료 시 정리 로직 실행
 	CleanUp();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -226,6 +233,14 @@ void UHeroGameplayAbility_TargetLock::SetTargetLockWidgetPosition()
 	DrawnTargetLockWidget->SetPositionInViewport(ScreenPosition, false);
 }
 
+void UHeroGameplayAbility_TargetLock::InitTargetLockMovement()
+{
+	// 기본 최대 이동 속도 캐싱
+	CachedDefaultMaxWalkSpeed = GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed;
+	// 이동 속도를 타겟 고정 이동 속도로 설정
+	GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed = TargetLockMaxWalkSpeed;
+}
+
 void UHeroGameplayAbility_TargetLock::CancelTargetLockAbility()
 {
 	CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
@@ -250,4 +265,17 @@ void UHeroGameplayAbility_TargetLock::CleanUp()
 
 	// 사이즈 초기화
 	TargetLockWidgetSize = FVector2D::ZeroVector;
+
+	// 이동 속도 캐싱 변수 초기화
+	CachedDefaultMaxWalkSpeed = 0.f;
+}
+
+void UHeroGameplayAbility_TargetLock::ResetTargetLockMovement()
+{
+	// 이동 속도가 캐싱 된 경우
+	if (CachedDefaultMaxWalkSpeed > 0.f)
+	{
+		// 최대 이동 속도를 기본값으로 재설정
+		GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed = CachedDefaultMaxWalkSpeed;
+	}
 }
