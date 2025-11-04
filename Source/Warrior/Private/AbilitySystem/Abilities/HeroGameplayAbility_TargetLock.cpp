@@ -22,10 +22,6 @@ void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpec
 {
 	// 타겟 고정
 	TryLockOnTarget();
-	// 타겟 고정 시 이동속도 설정
-	InitTargetLockMovement();
-	// 타겟 고정 매핑 컨텍스트 초기화
-	InitTargetLockMappingContext();
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
@@ -67,10 +63,13 @@ void UHeroGameplayAbility_TargetLock::OnTargetLockTick(float DeltaTime)
 	if (bShouldOverrideRotation)
 	{
 		// 캐릭터 위치에서 현재 락온된 액터를 바라보는 회전값 계산
-		const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+		FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
 			GetHeroCharacterFromActorInfo()->GetActorLocation(),    // 시작 위치 (플레이어)
 			CurrentLockedActor->GetActorLocation()                  // 목표 위치 (락온된 대상)
 		);
+
+		// 락온 시 대상이 잘 안 보이는 관계로 카메라 위치 조정
+		LookAtRot -= FRotator(TargetLockCameraOffsetDistance, 0.f, 0.f);
 
 		// 현재 컨트롤러(카메라)의 회전값
 		const FRotator CurrentControlRot = GetHeroControllerFromActorInfo()->GetControlRotation();
@@ -96,8 +95,11 @@ void UHeroGameplayAbility_TargetLock::SwitchTarget(const FGameplayTag& InSwitchD
 {
 	GetAvailableActorsToLock();
 
+	// 본래 락온 타겟으로부터 좌측, 우측 액터 배열
 	TArray<AActor*> ActorsOnLeft, ActorsOnRight;
+	// 락온할 새로운 타겟
 	AActor* NewTargetToLock = nullptr;
+	// 락온된 타겟 주변 액터
 	GetAvailableActorsAroundTarget(ActorsOnLeft, ActorsOnRight);
 
 	if (InSwitchDirectionTag == WarriorGameplayTags::Player_Event_SwitchTarget_Left)
@@ -136,6 +138,15 @@ void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 		DrawTargetLockWidget();
 
 		SetTargetLockWidgetPosition();
+
+		/*!
+		  아래 두 함수의 원래 위치는 ActivateAbility 내부였으나
+		  타겟이 모두 사망한 경우 다시 록온 시 움직임이 느려지고 마우스가 움직이지 않는 버그가 발생.
+		  락온 기능 실행 시 TryLockOnTarget 함수는 타겟이 없어 종료되지만 ActivateAbility 내부 아래 두 함수의 동작이 원인
+		  따라서 두 함수를 TryLockOnTarget 내부로 이동
+		*/ 
+		InitTargetLockMovement();			// 락온 시 움직임 초기화
+		InitTargetLockMappingContext();		// 타겟 고정 매핑 컨텍스트 초기화
 	}
 	// 고정된 액터가 유효하지 않은 경우 타겟 고정 취소
 	else
@@ -186,27 +197,43 @@ void UHeroGameplayAbility_TargetLock::GetAvailableActorsToLock()
 
 void UHeroGameplayAbility_TargetLock::GetAvailableActorsAroundTarget(TArray<AActor*>& OutActorsOnLeft, TArray<AActor*>& OutActorsOnRight)
 {
+	// 현재 락온된 액터가 없거나, 주변에 타겟 후보가 없다면 함수 종료
 	if (!CurrentLockedActor || AvailableActorsToLock.IsEmpty())
 	{
+		// 락온 능력을 취소하고 바로 반환
 		CancelTargetLockAbility();
 		return;
 	}
 
+	// 플레이어의 현재 위치
 	const FVector PlayerLocation = GetHeroCharacterFromActorInfo()->GetActorLocation();
-	const FVector PlayerToCurrentNormalized = (CurrentLockedActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
 
+	// 플레이어 → 현재 락온된 타겟 방향 벡터 (정규화)
+	const FVector PlayerToCurrentNormalized =
+		(CurrentLockedActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
+
+	// 현재 락온된 타겟 외의 모든 후보 액터에 대해 반복
 	for (AActor* AvailableActor : AvailableActorsToLock)
 	{
-		if (!AvailableActor || AvailableActor == CurrentLockedActor) continue;
+		// 유효하지 않거나, 이미 현재 락온된 액터라면 건너뜀
+		if (!AvailableActor || AvailableActor == CurrentLockedActor)
+			continue;
 
-		const FVector PlayerToAvailableNormalized = (AvailableActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
+		// 플레이어 → 후보 타겟 방향 벡터 (정규화)
+		const FVector PlayerToAvailableNormalized =
+			(AvailableActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
 
-		const FVector CrossResult = FVector::CrossProduct(PlayerToCurrentNormalized, PlayerToAvailableNormalized);
+		// 두 벡터의 외적(Cross Product)을 계산
+		// 결과 벡터의 Z값 부호는 오른쪽/왼쪽 방향 판별에 사용
+		const FVector CrossResult =
+			FVector::CrossProduct(PlayerToCurrentNormalized, PlayerToAvailableNormalized);
 
+		// Z가 양수면 후보 액터는 현재 락온 타겟의 ‘오른쪽’에 위치
 		if (CrossResult.Z > 0.f)
 		{
 			OutActorsOnRight.AddUnique(AvailableActor);
 		}
+		// Z가 음수면 후보 액터는 현재 락온 타겟의 ‘왼쪽’에 위치
 		else
 		{
 			OutActorsOnLeft.AddUnique(AvailableActor);
