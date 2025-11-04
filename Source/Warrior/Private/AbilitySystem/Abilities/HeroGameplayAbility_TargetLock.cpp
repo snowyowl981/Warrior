@@ -14,6 +14,7 @@
 #include "WarriorGameplayTags.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -23,6 +24,8 @@ void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpec
 	TryLockOnTarget();
 	// 타겟 고정 시 이동속도 설정
 	InitTargetLockMovement();
+	// 타겟 고정 매핑 컨텍스트 초기화
+	InitTargetLockMappingContext();
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
@@ -31,6 +34,8 @@ void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandl
 {
 	// 이동 속도 재설정
 	ResetTargetLockMovement();
+	// 타겟 고정 매핑 컨텍스트 재설정
+	ResetTargetLockMappingContext();
 	// 어빌리티 종료 시 정리 로직 실행
 	CleanUp();
 	
@@ -241,6 +246,18 @@ void UHeroGameplayAbility_TargetLock::InitTargetLockMovement()
 	GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed = TargetLockMaxWalkSpeed;
 }
 
+void UHeroGameplayAbility_TargetLock::InitTargetLockMappingContext()
+{
+	// 로컬 플레이어 변수 할당
+	const ULocalPlayer* LocalPlayer = GetHeroControllerFromActorInfo()->GetLocalPlayer();
+	// 향상된 입력 (Enhanced Input) 서브시스템 할당
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+	check(Subsystem);
+
+	// 서브시스템에 타겟 고정 매핑 컨텍스트 추가 (우선도 3)
+	Subsystem->AddMappingContext(TargetLockMappingContext, 3);
+}
+
 void UHeroGameplayAbility_TargetLock::CancelTargetLockAbility()
 {
 	CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
@@ -278,4 +295,24 @@ void UHeroGameplayAbility_TargetLock::ResetTargetLockMovement()
 		// 최대 이동 속도를 기본값으로 재설정
 		GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed = CachedDefaultMaxWalkSpeed;
 	}
+}
+
+void UHeroGameplayAbility_TargetLock::ResetTargetLockMappingContext()
+{
+	// 어빌리티 활성화 상태에서 종료 시 크래시 발생하는 문제 해결 위함
+	// 종료 시 EndAbility 호출 -> 재설정 기능 작동 -> 종료 시엔 HeroController가 nullptr 이므로 크래시 발생 
+	if (!GetHeroControllerFromActorInfo())
+	{
+		// HeroController가 유효하지 않는 경우 함수 종료하도록 설정
+		return;
+	}
+	
+	// 로컬 플레이어 변수 할당
+	const ULocalPlayer* LocalPlayer = GetHeroControllerFromActorInfo()->GetLocalPlayer();
+	// 향상된 입력 (Enhanced Input) 서브시스템 할당
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+	check(Subsystem);
+
+	// 서브시스템에서 타겟 고정 매핑 컨텍스트 제거
+	Subsystem->RemoveMappingContext(TargetLockMappingContext);
 }
