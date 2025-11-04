@@ -108,6 +108,10 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
 	// 눌렀을 떼, 뗐을 때 액션 바인딩
 	WarriorInputComponent->BindAbilityInputAction(InputConfigDataAsset, this, &ThisClass::Input_AbilityInputPressed, &ThisClass::Input_AbilityInputReleased);
+
+	// 타겟 변경 함수 바인딩
+	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_SwitchTarget, ETriggerEvent::Triggered, this, &ThisClass::Input_SwitchTargetTriggered);
+	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_SwitchTarget, ETriggerEvent::Completed, this, &ThisClass::Input_SwitchTargetCompleted);
 }
 
 void AWarriorHeroCharacter::BeginPlay()
@@ -156,6 +160,14 @@ void AWarriorHeroCharacter::Input_Look(const FInputActionValue& InputActionValue
 	{
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AWarriorHeroCharacter::Input_SwitchTargetTriggered(const struct FInputActionValue& InputActionValue)
+{
+}
+
+void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const struct FInputActionValue& InputActionValue)
+{
 }
 
 void AWarriorHeroCharacter::Input_AbilityInputPressed(FGameplayTag InputTag)
