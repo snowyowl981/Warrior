@@ -13,8 +13,8 @@ class UProjectileMovementComponent;
 UENUM(BlueprintType)
 enum class EProjectileDamagePolicy : uint8
 {
-	OnHit,
-	OnBeginOverlap
+	OnHit,			// 충돌
+	OnBeginOverlap	// 겹침
 };
 
 UCLASS()
@@ -46,4 +46,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	EProjectileDamagePolicy ProjectileDamagePolicy = EProjectileDamagePolicy::OnHit;
 	
+	// 발사체 충돌 시 호출할 델리게이트
+	UFUNCTION()
+	virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	
+	// 발사체 겹칠 시 호출할 델리게이트
+	UFUNCTION()
+	virtual void OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 };
+
+
+
