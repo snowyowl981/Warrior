@@ -5,6 +5,9 @@
 #include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "WarriorFunctionLibrary.h"
+#include "WarriorGameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -58,12 +61,51 @@ void AWarriorProjectileBase::BeginPlay()
 
 void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// 맞은 액터가 유효할 경우
-	if (OtherActor)
+	APawn* HitPawn = Cast<APawn>(OtherActor);
+	
+	// 발사체가 명중한 대상이 적대적이지 않거나 명중 대상이 유효하지 않은 경우
+	if (!HitPawn || !UWarriorFunctionLibrary::IsTargetPawnHostile(GetInstigator(), HitPawn))
 	{
-		Debug::Print(OtherActor->GetActorNameOrLabel());
 		Destroy();
+		return;
 	}
+	
+	// 유효한 막기인지 확인
+	bool bIsValidBlock = false;
+	
+	// 플레이어가 가드중인지 확인
+	const bool bIsPlayerBlocking = UWarriorFunctionLibrary::NativeDoesActorHaveTag(HitPawn, WarriorGameplayTags::Player_Status_Blocking);
+	
+	if (bIsPlayerBlocking)
+	{
+		bIsValidBlock = UWarriorFunctionLibrary::IsValidBlock(this, HitPawn);
+	}
+	
+	// 이벤트 데이터 설정
+	FGameplayEventData Data;
+	Data.Instigator = this;
+	Data.Target = HitPawn;
+	
+	// 유효한 막기일 경우
+	if (bIsValidBlock)
+	{
+		// 플레이어에게 가드 성공 이벤트 전달
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			HitPawn,
+			WarriorGameplayTags::Player_Event_SuccessfulBlock,
+			Data
+		);
+	}
+	else
+	{
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			HitPawn,
+			WarriorGameplayTags::Shared_Event_HitReact,
+			Data
+		);
+	}
+	
+	Destroy();
 }
 
 void AWarriorProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
