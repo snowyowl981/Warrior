@@ -6,6 +6,8 @@
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
+#include "WarriorDebugHelper.h"
+
 // Sets default values
 AWarriorProjectileBase::AWarriorProjectileBase()
 {
@@ -22,6 +24,10 @@ AWarriorProjectileBase::AWarriorProjectileBase()
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	
+	// 충돌 시, 겹쳤을 시 호출할 델리게이트
+	ProjectileCollisionBox->OnComponentHit.AddUniqueDynamic(this, &ThisClass::OnProjectileHit);
+	ProjectileCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnProjectileBeginOverlap);
+	
 	// 나이아가라 컴포넌트 생성, Root에 부착
 	ProjectileNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("ProjectileNiagaraComponent");
 	ProjectileNiagaraComponent->SetupAttachment(GetRootComponent());
@@ -33,6 +39,7 @@ AWarriorProjectileBase::AWarriorProjectileBase()
 	ProjectileMovementComponent->Velocity = FVector(1.0f, 0.0f, 0.0f);
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 	
+	// 4초 후 제거
 	InitialLifeSpan = 4.0f;
 	
 }
@@ -41,6 +48,26 @@ AWarriorProjectileBase::AWarriorProjectileBase()
 void AWarriorProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	// 발사체가 대상 폰과 겹쳤을 때 설정
+	if (ProjectileDamagePolicy == EProjectileDamagePolicy::OnBeginOverlap)
+	{
+		ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	}
+}
+
+void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// 맞은 액터가 유효할 경우
+	if (OtherActor)
+	{
+		Debug::Print(OtherActor->GetActorNameOrLabel());
+		Destroy();
+	}
+}
+
+void AWarriorProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
 	
 }
 
