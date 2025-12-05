@@ -61,11 +61,16 @@ void AWarriorProjectileBase::BeginPlay()
 
 void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// 발사체 히트 시 이펙트 스폰, 충격음 재생
+	BP_OnSpawnProjectileHitFX(Hit.ImpactPoint);
+	
+	// 맞은 폰 할당
 	APawn* HitPawn = Cast<APawn>(OtherActor);
 	
 	// 발사체가 명중한 대상이 적대적이지 않거나 명중 대상이 유효하지 않은 경우
 	if (!HitPawn || !UWarriorFunctionLibrary::IsTargetPawnHostile(GetInstigator(), HitPawn))
 	{
+		// 투사체 파괴 후 함수 종료
 		Destroy();
 		return;
 	}
@@ -96,6 +101,7 @@ void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, 
 			Data
 		);
 	}
+	// 유효하지 않은 경우 피격 전달
 	else
 	{
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
@@ -105,6 +111,7 @@ void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, 
 		);
 	}
 	
+	// 투사체 파괴
 	Destroy();
 }
 
