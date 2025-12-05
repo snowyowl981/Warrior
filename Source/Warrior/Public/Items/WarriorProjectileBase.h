@@ -54,6 +54,11 @@ protected:
 	UFUNCTION()
 	virtual void OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
+	// 블루프린트 구현 가능 발사체 히트 FX
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Spawn Projectile Hit FX"))
+	void BP_OnSpawnProjectileHitFX(const FVector& HitLocation);
+	
+	
 };
 
 
