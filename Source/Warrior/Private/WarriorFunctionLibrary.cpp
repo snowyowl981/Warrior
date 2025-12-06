@@ -170,3 +170,16 @@ bool UWarriorFunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefende
 	// 가드 유효성 반환
 	return bIsValidBlock;
 }
+
+bool UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle)
+{
+	// 시전자(Instigator)와 대상(Target)의 ASC(Ability System Component) 추출
+	UWarriorAbilitySystemComponent* SourceASC = NativeWarriorASCFromActor(InInstigator);
+	UWarriorAbilitySystemComponent* TargetASC = NativeWarriorASCFromActor(InTargetActor);
+    
+	// 시전자가 대상에게 GE Spec(게임플레이 이펙트 스펙) 적용
+	FActiveGameplayEffectHandle ActiveGameplayEffectHandle = SourceASC->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data, TargetASC);
+    
+	// 적용 성공 여부 반환
+	return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
+}

@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayEffectTypes.h"
 #include "WarriorProjectileBase.generated.h"
 
 class UBoxComponent;
 class UNiagaraComponent;
 class UProjectileMovementComponent;
+struct FGameplayEventData;
 
 UENUM(BlueprintType)
 enum class EProjectileDamagePolicy : uint8
@@ -45,6 +47,10 @@ protected:
 	// 발사체 대미지 정책
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	EProjectileDamagePolicy ProjectileDamagePolicy = EProjectileDamagePolicy::OnHit;
+
+    // 발사체 대미지 이펙트 스펙 핸들
+	UPROPERTY(BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = "true"))
+	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
 	
 	// 발사체 충돌 시 호출할 델리게이트
 	UFUNCTION()
@@ -57,6 +63,10 @@ protected:
 	// 블루프린트 구현 가능 발사체 히트 FX
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Spawn Projectile Hit FX"))
 	void BP_OnSpawnProjectileHitFX(const FVector& HitLocation);
+	
+private:
+	// 발사체 대미지 처리 함수
+	void HandleApplyProjectileDamage(APawn* InHitPawn, const FGameplayEventData& InPayload);
 	
 	
 };
