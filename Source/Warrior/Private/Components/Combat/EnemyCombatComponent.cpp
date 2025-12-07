@@ -24,8 +24,9 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	// 가드 유효성 여부
 	bool bIsValidBlock = false;
 	
+	// 플레이어 가드 중인지, 공격이 가드 불가인지 확인해 할당
 	const bool bIsPlayerBlocking = UWarriorFunctionLibrary::NativeDoesActorHaveTag(HitActor, WarriorGameplayTags::Player_Status_Blocking);
-	const bool bIsMyAttackUnblockable = false;		// 가드 불가 공격 여부
+	const bool bIsMyAttackUnblockable = UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetOwningPawn(), WarriorGameplayTags::Enemy_Status_Unblockable);
 	
 	// 플레이어 가드 중, 가불기 아닐 때
 	if (bIsPlayerBlocking && !bIsMyAttackUnblockable)
