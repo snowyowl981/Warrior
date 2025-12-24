@@ -37,6 +37,13 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	//~ End APawn Interface.\
 	
+#if WITH_EDITOR
+	//~ Begin UObject Interface.
+	virtual void PostEditChangeProperty( struct FPropertyChangedEvent& PropertyChangedEvent) override;
+	//~ End UObject Interface.
+#endif
+	
+	
 	// 적 전투 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	UEnemyCombatComponent* EnemyCombatComponent;
@@ -45,9 +52,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	UBoxComponent* LeftHandCollisionBox;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	FName LeftHandCollisionBoxAttachBoneName;
+	
 	// 오른손 콜리전 박스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	UBoxComponent* RightHandCollisionBox;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	FName RightHandCollisionBoxAttachBoneName;
 
 	// 적 UI 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
