@@ -9,6 +9,7 @@
 #include "Components/UI/EnemyUIComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/WarriorWidgetBase.h"
+#include "Components/BoxComponent.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -47,6 +48,19 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 	// EnemyHealthWidgetComponent 생성 및 초기화, 캐릭터 메쉬에 부착
 	EnemyHealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("EnemyHealthWidgetComponent");
 	EnemyHealthWidgetComponent->SetupAttachment(GetMesh()); 
+	
+	// 왼손 콜리전 박스 생성 및 초기화
+	LeftHandCollisionBox = CreateDefaultSubobject<UBoxComponent>("LeftHandCollisionBox");
+	LeftHandCollisionBox->SetupAttachment(GetMesh());
+	LeftHandCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnBodyCollisionBoxBeginOverlap);
+	
+	// 오른손 콜리전 박스 생성 및 초기화
+	RightHandCollisionBox = CreateDefaultSubobject<UBoxComponent>("RightHandCollisionBox");
+	RightHandCollisionBox->SetupAttachment(GetMesh());
+	RightHandCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnBodyCollisionBoxBeginOverlap);
+	
 }
 
 UPawnCombatComponent* AWarriorEnemyCharacter::GetCombatComponent() const
@@ -84,6 +98,11 @@ void AWarriorEnemyCharacter::PossessedBy(AController* NewController)
 
 	// 캐릭터 초기화 데이터를 설정하는 사용자 정의 함수 호출
 	InitEnemyStartUpData();
+}
+
+void AWarriorEnemyCharacter::OnBodyCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	
 }
 
 // 캐릭터의 시작 시 필요한 데이터를 비동기적으로 로딩하고 초기화하는 함수

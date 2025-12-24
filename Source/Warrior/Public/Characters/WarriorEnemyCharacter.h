@@ -6,6 +6,9 @@
 #include "Characters/WarriorBaseCharacter.h"
 #include "WarriorEnemyCharacter.generated.h"
 
+class UEnemyCombatComponent;
+class UWidgetComponent;
+class UBoxComponent;
 /**
  * 
  */
@@ -36,7 +39,15 @@ protected:
 	
 	// 적 전투 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	class UEnemyCombatComponent* EnemyCombatComponent;
+	UEnemyCombatComponent* EnemyCombatComponent;
+	
+	// 왼손 콜리전 박스
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UBoxComponent* LeftHandCollisionBox;
+	
+	// 오른손 콜리전 박스
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UBoxComponent* RightHandCollisionBox;
 
 	// 적 UI 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
@@ -44,13 +55,21 @@ protected:
 
 	// 적 체력 위젯 컴포넌트 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
-	class UWidgetComponent* EnemyHealthWidgetComponent; 
+	UWidgetComponent* EnemyHealthWidgetComponent;
+	
+	// 무기가 다른 컴포넌트와 충돌 시작 시 전달할 콜백 함수 
+	UFUNCTION()
+	virtual void OnBodyCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	
+	
 
 private:
+	// 적 시작 데이터 초기화
 	void InitEnemyStartUpData();
 
 public:
-	// 적 전투 컴포넌트 Getter 함수
-	FORCEINLINE UEnemyCombatComponent* GetEnemyCombatComponent() const { return EnemyCombatComponent; }
+	FORCEINLINE UEnemyCombatComponent*	GetEnemyCombatComponent()	const { return EnemyCombatComponent; }		// 적 전투 컴포넌트 Getter
+	FORCEINLINE UBoxComponent*			GetLeftHandCollisionBox()	const { return LeftHandCollisionBox; }		// 왼손 콜리전 박스 Getter
+	FORCEINLINE UBoxComponent*			GetRightHandCollisionBox()	const { return RightHandCollisionBox; }		// 오른손 콜리전 박스 Getter
 
 };
