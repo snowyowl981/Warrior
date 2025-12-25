@@ -51,6 +51,10 @@ public:
 	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor);
 
 protected:
+	// 무기, 신체 콜리전 토글
+	virtual void ToggleCurrentEquippedWeaponCollision(bool bShouldEnable);
+	virtual void ToggleBodyCollisionBoxCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType);
+	
 	// 오버랩된 액터 배열
 	TArray<AActor*> OverlappedActors;
 	

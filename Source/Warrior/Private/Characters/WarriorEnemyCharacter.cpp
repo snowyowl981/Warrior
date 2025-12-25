@@ -10,6 +10,7 @@
 #include "Components/WidgetComponent.h"
 #include "Widgets/WarriorWidgetBase.h"
 #include "Components/BoxComponent.h"
+#include "WarriorFunctionLibrary.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -100,10 +101,11 @@ void AWarriorEnemyCharacter::PossessedBy(AController* NewController)
 	InitEnemyStartUpData();
 }
 
+// 에디터 내 사용
 #if WITH_EDITOR
 void AWarriorEnemyCharacter::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
 {
-	// 에디터 내에서 현재 수정 중인 속성 확인
+	// 현재 수정 중인 속성 확인
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	
 	// 왼손 충돌 박스의 연결 본(bone) 이름이 변경되었을 때 처리
@@ -122,9 +124,19 @@ void AWarriorEnemyCharacter::PostEditChangeProperty(struct FPropertyChangedEvent
 }
 #endif
 
+// 콜리전 겹침 시
 void AWarriorEnemyCharacter::OnBodyCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	// 피격된 액터 폰 캐스팅
+	if (APawn* HitPawn = Cast<APawn>(OtherActor))
+	{
+		// 피격된 폰이 적대적인지 확인
+		if (UWarriorFunctionLibrary::IsTargetPawnHostile(this, HitPawn))
+		{
+			// 타겟 히트 델리게이트 호출
+			EnemyCombatComponent->OnHitTargetActor(HitPawn);
+		}
+	}
 }
 
 // 캐릭터의 시작 시 필요한 데이터를 비동기적으로 로딩하고 초기화하는 함수

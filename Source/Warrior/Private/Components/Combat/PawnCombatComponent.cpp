@@ -69,27 +69,14 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 	// 토글시킬 피해 타입이 현재 장비중인 무기인 경우
 	if (ToggleDamageType == EToggleDamageType::CurrentEquippedWeapon)
 	{
-		// 현재 장비중인 무기 지역변수 할당
-		AWarriorWeaponBase* WeaponToToggle = GetCharacterCurrentEquippedWeapon();
-
-		// 현재 장비중인 무기 유효성 체크
-		check(WeaponToToggle);
-
-		// 충돌이 필요한 경우 Collision 활성화
-		if (bShouldEnable)
-		{
-			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
-		// 충돌이 필요치 않은 경우 Collision 비활성화
-		else
-		{
-			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			// 충돌 ANS(Anim Notify State)가 끝날 때 오버랩된 액터 배열 클리어
-			OverlappedActors.Empty();
-		}
+		// 활성화 여부에 따라 무기 콜리전 토글 실행
+		ToggleCurrentEquippedWeaponCollision(bShouldEnable);
 	}
-
-	// TODO : Handle body collision boxes
+	else
+	{
+		// 아닌 경우 신체 콜리전 토글 실행
+		ToggleBodyCollisionBoxCollision(bShouldEnable, ToggleDamageType);
+	}
 }
 
 void UPawnCombatComponent::OnHitTargetActor(AActor* HitActor)
@@ -99,4 +86,31 @@ void UPawnCombatComponent::OnHitTargetActor(AActor* HitActor)
 
 void UPawnCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
 {
+}
+
+void UPawnCombatComponent::ToggleCurrentEquippedWeaponCollision(bool bShouldEnable)
+{
+	// 현재 장비중인 무기 지역변수 할당
+	AWarriorWeaponBase* WeaponToToggle = GetCharacterCurrentEquippedWeapon();
+
+	// 현재 장비중인 무기 유효성 체크
+	check(WeaponToToggle);
+
+	// 충돌이 필요한 경우 Collision 활성화
+	if (bShouldEnable)
+	{
+		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	// 충돌이 필요치 않은 경우 Collision 비활성화
+	else
+	{
+		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// 충돌 ANS(Anim Notify State)가 끝날 때 오버랩된 액터 배열 클리어
+		OverlappedActors.Empty();
+	}
+}
+
+void UPawnCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType)
+{
+	// 신체 콜리전의 경우 하위 클래스에서 실행
 }
