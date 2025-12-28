@@ -32,7 +32,7 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// 회전 속도 설정 (Yaw 회전 속도 0 — 필요 시 변경 가능)
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 0.f);
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 180.f, 0.f);
 
 	// 걷기 속도 설정
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
