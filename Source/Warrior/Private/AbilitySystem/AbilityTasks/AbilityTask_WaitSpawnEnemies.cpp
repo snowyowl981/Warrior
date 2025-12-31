@@ -3,10 +3,14 @@
 
 #include "AbilitySystem/AbilityTasks/AbilityTask_WaitSpawnEnemies.h"
 #include "AbilitySystemComponent.h"
+#include "Engine/AssetManager.h"
+#include "NavigationSystem.h"
+#include "Characters/WarriorEnemyCharacter.h"
+
 #include "WarriorDebugHelper.h"
 
 UAbilityTask_WaitSpawnEnemies* UAbilityTask_WaitSpawnEnemies::WaitSpawnEnemies(UGameplayAbility* OwningAbility, FGameplayTag EventTag, TSoftClassPtr<AWarriorEnemyCharacter> SoftEnemyClassToSpawn,
-	int32 NumToSpawn, const FVector& SpawnOrigin, float RandomSpawnRadius, const FRotator& SpawnRotation)
+                                                                               int32 NumToSpawn, const FVector& SpawnOrigin, float RandomSpawnRadius, const FRotator& SpawnRotation)
 {
 	// 새 어빌리티 태스크 인스턴스 생성
 	UAbilityTask_WaitSpawnEnemies* Node = NewAbilityTask<UAbilityTask_WaitSpawnEnemies>(OwningAbility);
@@ -46,7 +50,81 @@ void UAbilityTask_WaitSpawnEnemies::OnDestroy(bool bInOwnerFinished)
 
 void UAbilityTask_WaitSpawnEnemies::OnGameplayEventReceived(const FGameplayEventData* InPayload)
 {
-	Debug::Print(TEXT("Gameplay event received"));
-	
-	EndTask();
+    // 스폰할 적 클래스 정보가 유효한지 확인
+    if (ensure(!CachedSoftEnemyClassToSpawn.IsNull()))
+    {
+       // 비동기 방식으로 적 클래스 로드 요청 및 완료 시 콜백 등록
+       UAssetManager::Get().GetStreamableManager().RequestAsyncLoad(
+       CachedSoftEnemyClassToSpawn.ToSoftObjectPath(),
+       FStreamableDelegate::CreateUObject(this, &ThisClass::OnEnemyClassLoaded));
+    }
+    else
+    {
+       // 클래스 정보가 없으면 실패 델리게이트 방송 후 태스크 종료
+       if (ShouldBroadcastAbilityTaskDelegates())
+       {
+          DidNotSpawn.Broadcast(TArray<AWarriorEnemyCharacter*>());
+       }
+       
+       EndTask();
+    }
+}
+
+void UAbilityTask_WaitSpawnEnemies::OnEnemyClassLoaded()
+{
+    // 로드된 클래스 정보와 월드 가져오기
+    UClass* LoadedClass = CachedSoftEnemyClassToSpawn.Get();
+    UWorld* World = GetWorld();
+    
+    // 로드 실패 또는 월드가 없을 경우 예외 처리
+    if (!LoadedClass || !World)
+    {
+       if (ShouldBroadcastAbilityTaskDelegates())
+       {
+          DidNotSpawn.Broadcast(TArray<AWarriorEnemyCharacter*>());
+       }
+       
+       EndTask();
+       
+       return;
+    }
+    
+    TArray<AWarriorEnemyCharacter*> SPawnedEnemies;
+    FActorSpawnParameters SpawnParam;
+    SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    
+    // 설정된 마릿수만큼 반복 스폰
+    for (int32 i = 0; i < CachedNumToSpawn; i++)
+    {
+       FVector RandomLocation;
+       // 내비게이션 시스템을 이용해 주변의 도달 가능한 랜덤 위치 탐색
+       UNavigationSystemV1::K2_GetRandomReachablePointInRadius(this, CachedSpawnOrigin, RandomLocation, CachedRandomSpawnRadius);
+       
+       // 바닥에 끼이지 않도록 스폰 높이 보정
+       RandomLocation += FVector(0.0f, 0.0f, 150.0f);
+       
+       // 적 캐릭터 스폰 시도
+       AWarriorEnemyCharacter* SpawnedEnemy = World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass, RandomLocation, CachedSpawnRotation, SpawnParam);
+       
+       if (SpawnedEnemy)
+       {
+          SPawnedEnemies.Add(SpawnedEnemy);
+       }
+    }
+    
+    // 스폰 결과에 따라 성공 또는 실패 델리게이트 브로드캐스트
+    if (ShouldBroadcastAbilityTaskDelegates())
+    {
+       if (!SPawnedEnemies.IsEmpty())
+       {
+          OnSpawnFinished.Broadcast(SPawnedEnemies);
+       }
+       else
+       {
+          DidNotSpawn.Broadcast(TArray<AWarriorEnemyCharacter*>());
+       }
+    }
+    
+    // 태스크 종료
+    EndTask();
 }
