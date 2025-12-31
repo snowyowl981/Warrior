@@ -37,6 +37,11 @@ public:
 	// 스폰 실패 시 호출되는 델리게이트
 	UPROPERTY(BlueprintAssignable)
 	FWaitSpawnEnemiesDelegate DidNotSpawn;
+	
+	//~ Begin UGameplayTask Interface
+	virtual void Activate() override;
+	virtual void OnDestroy(bool bInOwnerFinished) override;
+	//~ End UGameplayTask Interface
     
 private:
 	// 태스크 실행 시 사용하기 위해 캐싱된 설정값들
@@ -46,5 +51,8 @@ private:
 	FVector CachedSpawnOrigin;
 	float CachedRandomSpawnRadius;
 	FRotator CachedSpawnRotation;
+	FDelegateHandle DelegateHandle;
+	
+	void OnGameplayEventReceived(const FGameplayEventData* InPayload);
 	
 };
