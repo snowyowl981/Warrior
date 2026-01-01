@@ -5,6 +5,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "WarriorFunctionLibrary.h"
+#include "WarriorGameplayTags.h"
+
+#include "WarriorDebugHelper.h"
 
 UBTService_OrientToTargetActor::UBTService_OrientToTargetActor()
 {
@@ -56,7 +60,7 @@ void UBTService_OrientToTargetActor::TickNode(UBehaviorTreeComponent& OwnerComp,
 
 	// 현재 AI 컨트롤러가 조종 중인 Pawn 가져오기
 	APawn* OwningPawn = OwnerComp.GetAIOwner()->GetPawn();
-
+	
 	// 대상 액터와 자신의 Pawn이 모두 존재할 때만 실행
 	if (TargetActor && OwningPawn)
 	{

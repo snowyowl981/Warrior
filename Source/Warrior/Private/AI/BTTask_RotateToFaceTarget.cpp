@@ -5,6 +5,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "WarriorFunctionLibrary.h"
+#include "WarriorGameplayTags.h"
+
+#include "WarriorDebugHelper.h"
 
 UBTTask_RotateToFaceTarget::UBTTask_RotateToFaceTarget()
 {
@@ -94,7 +98,7 @@ void UBTTask_RotateToFaceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 		const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(Memory->OwningPawn->GetActorLocation(), Memory->TargetActor->GetActorLocation());
 		const FRotator TargetRot = FMath::RInterpTo(Memory->OwningPawn->GetActorRotation(), LookAtRot, DeltaSeconds, RotationInterpSpeed);
 
-		Memory->OwningPawn->SetActorRotation(TargetRot);
+		// Memory->OwningPawn->SetActorRotation(TargetRot);
 	}
 }
 
