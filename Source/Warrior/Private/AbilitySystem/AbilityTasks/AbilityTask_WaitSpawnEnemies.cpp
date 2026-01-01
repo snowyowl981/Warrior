@@ -95,23 +95,23 @@ void UAbilityTask_WaitSpawnEnemies::OnEnemyClassLoaded()
     // 설정된 마릿수만큼 반복 스폰
     for (int32 i = 0; i < CachedNumToSpawn; i++)
     {
-       FVector RandomLocation;
-       // 내비게이션 시스템을 이용해 주변의 도달 가능한 랜덤 위치 탐색
-       UNavigationSystemV1::K2_GetRandomReachablePointInRadius(this, CachedSpawnOrigin, RandomLocation, CachedRandomSpawnRadius);
+		FVector RandomLocation;
+		// 내비게이션 시스템을 이용해 주변의 도달 가능한 랜덤 위치 탐색
+		UNavigationSystemV1::K2_GetRandomReachablePointInRadius(this, CachedSpawnOrigin, RandomLocation, CachedRandomSpawnRadius);
        
-       // 바닥에 끼이지 않도록 스폰 높이 보정
-       RandomLocation += FVector(0.0f, 0.0f, 150.0f);
+		// 바닥에 끼이지 않도록 스폰 높이 보정
+		RandomLocation += FVector(0.0f, 0.0f, 150.0f);
     	
     	// 스폰 시 캐릭터 방향 회전
 		const FRotator SpawnFacingRotation = AbilitySystemComponent->GetAvatarActor()->GetActorForwardVector().ToOrientationRotator();
        
-       // 적 캐릭터 스폰 시도
-       AWarriorEnemyCharacter* SpawnedEnemy = World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass, RandomLocation, SpawnFacingRotation, SpawnParam);
-       
-       if (SpawnedEnemy)
-       {
-          SPawnedEnemies.Add(SpawnedEnemy);
-       }
+		// 적 캐릭터 스폰 시도
+		AWarriorEnemyCharacter* SpawnedEnemy = World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass, RandomLocation, SpawnFacingRotation, SpawnParam);
+    	
+		if (SpawnedEnemy)
+		{
+			SPawnedEnemies.Add(SpawnedEnemy);
+		}
     }
     
     // 스폰 결과에 따라 성공 또는 실패 델리게이트 브로드캐스트
