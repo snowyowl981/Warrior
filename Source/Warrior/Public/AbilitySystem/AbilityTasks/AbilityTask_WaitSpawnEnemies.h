@@ -26,8 +26,7 @@ public:
 	   TSoftClassPtr<AWarriorEnemyCharacter> SoftEnemyClassToSpawn,
 	   int32 NumToSpawn,
 	   const FVector& SpawnOrigin,
-	   float RandomSpawnRadius,
-	   const FRotator& SpawnRotation
+	   float RandomSpawnRadius
 	);
     
 	// 스폰 완료 시 호출되는 델리게이트 (성공)
@@ -50,7 +49,6 @@ private:
 	int32 CachedNumToSpawn;
 	FVector CachedSpawnOrigin;
 	float CachedRandomSpawnRadius;
-	FRotator CachedSpawnRotation;
 	FDelegateHandle DelegateHandle;
 	
 	void OnGameplayEventReceived(const FGameplayEventData* InPayload);

@@ -10,7 +10,7 @@
 #include "WarriorDebugHelper.h"
 
 UAbilityTask_WaitSpawnEnemies* UAbilityTask_WaitSpawnEnemies::WaitSpawnEnemies(UGameplayAbility* OwningAbility, FGameplayTag EventTag, TSoftClassPtr<AWarriorEnemyCharacter> SoftEnemyClassToSpawn,
-                                                                               int32 NumToSpawn, const FVector& SpawnOrigin, float RandomSpawnRadius, const FRotator& SpawnRotation)
+                                                                               int32 NumToSpawn, const FVector& SpawnOrigin, float RandomSpawnRadius)
 {
 	// 새 어빌리티 태스크 인스턴스 생성
 	UAbilityTask_WaitSpawnEnemies* Node = NewAbilityTask<UAbilityTask_WaitSpawnEnemies>(OwningAbility);
@@ -21,7 +21,6 @@ UAbilityTask_WaitSpawnEnemies* UAbilityTask_WaitSpawnEnemies::WaitSpawnEnemies(U
 	Node->CachedNumToSpawn				= NumToSpawn;
 	Node->CachedSpawnOrigin             = SpawnOrigin;
 	Node->CachedRandomSpawnRadius		= RandomSpawnRadius;
-	Node->CachedSpawnRotation			= SpawnRotation;
     
 	// 생성된 태스크 노드 반환
 	return Node;
@@ -102,9 +101,12 @@ void UAbilityTask_WaitSpawnEnemies::OnEnemyClassLoaded()
        
        // 바닥에 끼이지 않도록 스폰 높이 보정
        RandomLocation += FVector(0.0f, 0.0f, 150.0f);
+    	
+    	// 스폰 시 캐릭터 방향 회전
+		const FRotator SpawnFacingRotation = AbilitySystemComponent->GetAvatarActor()->GetActorForwardVector().ToOrientationRotator();
        
        // 적 캐릭터 스폰 시도
-       AWarriorEnemyCharacter* SpawnedEnemy = World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass, RandomLocation, CachedSpawnRotation, SpawnParam);
+       AWarriorEnemyCharacter* SpawnedEnemy = World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass, RandomLocation, SpawnFacingRotation, SpawnParam);
        
        if (SpawnedEnemy)
        {
