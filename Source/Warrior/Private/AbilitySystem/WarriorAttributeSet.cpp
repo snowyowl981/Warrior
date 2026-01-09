@@ -58,6 +58,23 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 
 		// 현재 분노 설정
 		SetCurrentRage(NewCurrentRage);
+		
+		// 현재 분노 게이지가 꽉 찼는지 확인 후 태그 추가
+		if (GetCurrentRage() == GetMaxRage())
+		{
+			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(Data.Target.GetAvatarActor(), WarriorGameplayTags::Player_Status_Rage_Full);
+		}
+		// 현재 분노 게이지가 비어 있는지 확인 후 태그 추가
+		else if (GetCurrentRage() == 0.0f)
+		{
+			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(Data.Target.GetAvatarActor(), WarriorGameplayTags::Player_Status_Rage_None);
+		}
+		// 아닌 경우 두 태그 모두 제거
+		else
+		{
+			UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(Data.Target.GetAvatarActor(), WarriorGameplayTags::Player_Status_Rage_Full);
+			UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(Data.Target.GetAvatarActor(), WarriorGameplayTags::Player_Status_Rage_None);
+		}
 
 		// HeroUIComponent 할당 및 유효성 체크
 		if (UHeroUIComponent* HeroUIComponent = CachedPawnUIInterface->GetHeroUIComponent())
