@@ -68,6 +68,8 @@ private:
 	// 발사체 대미지 처리 함수
 	void HandleApplyProjectileDamage(APawn* InHitPawn, const FGameplayEventData& InPayload);
 	
+	TArray<AActor*> OverlappedActors;
+	
 	
 };
 
