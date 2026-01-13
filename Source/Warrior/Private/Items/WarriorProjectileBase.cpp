@@ -114,24 +114,34 @@ void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, 
 
 void AWarriorProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// 이미 겹친 액터라면 더 이상 처리하지 않음
 	if (OverlappedActors.Contains(OtherActor))
 	{
 		return;
 	}
-	
+
+	// 처음 겹친 액터라면 목록에 추가
 	OverlappedActors.AddUnique(OtherActor);
-	
+
+	// OtherActor를 Pawn 타입으로 캐스팅
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
+		// 게임플레이 이벤트 데이터 설정
 		FGameplayEventData Data;
-		Data.Instigator = GetInstigator();
-		Data.Target = HitPawn;
-		
+		Data.Instigator = GetInstigator(); // 공격자(발사 주체)
+		Data.Target = HitPawn;             // 피격 대상
+
+		// 대상이 적대적인 Pawn인지 체크
 		if (UWarriorFunctionLibrary::IsTargetPawnHostile(GetInstigator(), HitPawn))
 		{
+			// 적대 대상일 경우 투사체 피해 적용
 			HandleApplyProjectileDamage(HitPawn, Data);
 		}
 	}
+	
+	// 발사체 히트 시 이펙트 스폰, 충격음 재생
+	BP_OnSpawnProjectileHitFX(SweepResult.ImpactPoint);
+
 }
 
 void AWarriorProjectileBase::HandleApplyProjectileDamage(APawn* InHitPawn, const FGameplayEventData& InPayload)
