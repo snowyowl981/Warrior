@@ -17,7 +17,7 @@ AWarriorProjectileBase::AWarriorProjectileBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	// 콜리전 박스 서브 오브젝트 생성 및 루트로 지정
+	// 콜리전 박스 오브젝트 생성 및 루트로 지정
 	ProjectileCollisionBox = CreateDefaultSubobject<UBoxComponent>("ProjectileCollisionBox");
 	SetRootComponent(ProjectileCollisionBox);
 	
