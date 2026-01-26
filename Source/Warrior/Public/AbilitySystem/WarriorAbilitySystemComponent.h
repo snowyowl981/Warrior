@@ -25,7 +25,7 @@ public:
 
 	// Blueprint에서 호출 가능하며, AbilitySet에 정의된 어빌리티들을 ApplyLevel 레벨로 부여
 	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability", meta = (ApplyLevel = "1"))
-	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantAbilitySpecHandles);
+	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities, const TArray<FWarriorHeroSpecialAbilitySet>& InSpecialWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantAbilitySpecHandles);
 
 	// 캐릭터에게 부여된 기본 무기 관련 어빌리티들을 제거하는 함수
 	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability")

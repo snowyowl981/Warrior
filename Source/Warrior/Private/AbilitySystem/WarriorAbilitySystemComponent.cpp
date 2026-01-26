@@ -50,7 +50,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& 
 	}
 }
 
-void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantAbilitySpecHandles)
+void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities, const TArray<FWarriorHeroSpecialAbilitySet>& InSpecialWeaponAbilities,int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantAbilitySpecHandles)
 {
 	// 무기 어빌리티 배열 비어있을 시 리턴
 	if (InDefaultWeaponAbilities.IsEmpty())
@@ -78,6 +78,28 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarr
 
 		// AbilitySystemComponent에 어빌리티를 부여
 		// GiveAbility(AbilitySpec);
+
+		// 어빌리티를 부여하고 반환된 핸들을 배열에 저장 (중복 없이)
+		OutGrantAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
+	}
+	
+	// InSpecialWeaponAbilities 배열에 있는 각 FWarriorHeroSpecialAbilitySet 구조체를 순회
+	for (const FWarriorHeroSpecialAbilitySet& AbilitySet : InSpecialWeaponAbilities)
+	{
+		// 현재 AbilitySet이 유효하지 않으면 루프 건너뜀
+		if (!AbilitySet.IsValid()) continue;
+
+		// AbilityToGrant (부여할 어빌리티 클래스)로 FGameplayAbilitySpec 생성
+		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
+
+		// 이 어빌리티의 소스 객체를 현재 AbilitySystemComponent의 아바타(주체 액터)로 설정
+		AbilitySpec.SourceObject = GetAvatarActor();
+
+		// 어빌리티 레벨 설정 (대개 캐릭터 레벨이나 특정 수치 기반)
+		AbilitySpec.Level = ApplyLevel;
+
+		// 어빌리티 스펙에 입력 태그(InputTag) 추가 (예: 공격/방어 키와 연결하기 위한 태그)
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 
 		// 어빌리티를 부여하고 반환된 핸들을 배열에 저장 (중복 없이)
 		OutGrantAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));

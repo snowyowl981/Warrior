@@ -10,6 +10,7 @@ class UWarriorHeroGameplayAbility;
 class UWarriorHeroLinkedAnimLayer;
 class UInputMappingContext;
 
+// 영웅 능력 세트 구조체
 USTRUCT(BlueprintType)
 struct FWarriorHeroAbilitySet
 {
@@ -28,6 +29,21 @@ struct FWarriorHeroAbilitySet
 	bool IsValid() const;
 };
 
+// 영웅 특수 능력 세트 구조체
+USTRUCT(BlueprintType)
+struct FWarriorHeroSpecialAbilitySet : public FWarriorHeroAbilitySet
+{
+	GENERATED_BODY()
+
+	// 특수 무기 능력 할당 아이콘
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UMaterialInterface> AbilityIconMaterial;
+	
+	// 특수 무기 능력 쿨타임 태그
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Player.Cooldown"))
+	FGameplayTag AbilityCooldownTag;
+};
+
 USTRUCT(BlueprintType)
 struct FWarriorHeroWeaponData
 {
@@ -44,6 +60,10 @@ struct FWarriorHeroWeaponData
 	// 기본 무기 어빌리티 배열
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
 	TArray<FWarriorHeroAbilitySet> DefaultWeaponAbilities;
+	
+	// 특수 무기 어빌리티 배열
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
+	TArray<FWarriorHeroSpecialAbilitySet> SpecialWeaponAbilities;
 
 	// 무기 기본 대미지. FScalableFloat : Data Table의 행(변수)과 열(레벨)을 참조하는 구조체
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
