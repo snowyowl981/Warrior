@@ -8,6 +8,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "WarriorGameplayTags.h"
+#include "WarriorTypes/WarriorCountDownAction.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -182,4 +183,63 @@ bool UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor*
     
 	// 적용 성공 여부 반환
 	return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
+}
+
+// 카운트다운을 시작하거나 취소하는 함수
+// 블루프린트 Latent Action 형태로 동작하며, 일정 시간 동안 카운트다운 수행 가능
+//
+// 매개변수 설명:
+// - WorldContextObject: 현재 월드 컨텍스트를 가져오는 기준 오브젝트 (보통 UObject나 Actor)
+// - TotalTime: 전체 카운트다운 시간 (초 단위)
+// - UpdateInterval: 카운트다운 갱신 주기 (초 단위)
+// - OutRemainingTime: 남은 시간 (레퍼런스로 반환)
+// - CountDownInput: 카운트다운 입력 명령 (시작/취소 등)
+// - CountDownOutput: 카운트다운 출력 상태 (진행 중/완료/취소)
+// - LatentInfo: Latent Action의 콜백 정보 (노드 핀 연결용)
+void UWarriorFunctionLibrary::CountDown(const UObject* WorldContextObject, float TotalTime, float UpdateInterval, float& OutRemainingTime, EWarriorCountDownActionInput CountDownInput,
+    UPARAM(DisplayName = "Output") EWarriorCountDownActionOutput& CountDownOutput, FLatentActionInfo LatentInfo)
+{
+    UWorld* World = nullptr;
+    
+    // GEngine이 유효하다면 WorldContextObject로부터 월드 인스턴스 가져오기
+    if (GEngine)
+    {
+       World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+    }
+    
+    // 월드를 가져오지 못하면 동작할 수 없으므로 종료
+    if (!World)
+    {
+       return;
+    }
+    
+    // 현재 월드의 LatentActionManager 참조
+    FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+    
+    // 이미 등록된 카운트다운 액션이 있는지 확인
+    FWarriorCountDownAction* FoundAction = LatentActionManager.FindExistingAction<FWarriorCountDownAction>(LatentInfo.CallbackTarget, LatentInfo.UUID);
+    
+    // 카운트다운 시작 요청
+    if (CountDownInput == EWarriorCountDownActionInput::Start)
+    {
+       if (!FoundAction)
+       {
+          // 새로운 카운트다운 액션 생성 및 등록
+          // LatentActionManager가 자동으로 수명 관리하므로 메모리 누수 없음
+          LatentActionManager.AddNewAction(
+             LatentInfo.CallbackTarget, 
+             LatentInfo.UUID, 
+             new FWarriorCountDownAction(TotalTime, UpdateInterval, OutRemainingTime, CountDownOutput, LatentInfo)
+          );
+       }
+    }
+    
+    // 카운트다운 취소 요청
+    if (CountDownInput == EWarriorCountDownActionInput::Cancel)
+    {
+       if (FoundAction)
+       {
+          FoundAction->CancelAction(); // 진행 중인 액션 취소
+       }
+    }
 }
