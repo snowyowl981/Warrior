@@ -35,7 +35,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag, int32 InUsedComboCount);
 	
-
+	// 태그로 남은 능력 쿨타임 가져오는 함수
+	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability")
+	bool GetAbilityRemainingCooldownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime, float& RemainingCooldownTime);
+	
 private:
 	// TWeakObjectPtr : 언리얼 스마트 포인터 유형 (객체의 참조만 유지하고 싶을 때)
 	// 캐싱된 캐릭터 포인터
