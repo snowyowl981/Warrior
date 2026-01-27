@@ -37,7 +37,7 @@ struct FWarriorHeroSpecialAbilitySet : public FWarriorHeroAbilitySet
 
 	// 특수 무기 능력 할당 아이콘
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSoftObjectPtr<UMaterialInterface> AbilityIconMaterial;
+	TSoftObjectPtr<UMaterialInterface> SoftAbilityIconMaterial;
 	
 	// 특수 무기 능력 쿨타임 태그
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Player.Cooldown"))
