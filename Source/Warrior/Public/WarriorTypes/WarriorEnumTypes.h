@@ -23,3 +23,20 @@ enum class EWarriorSuccessType : uint8
 	Successful,	// 성공
 	Failed		// 실패
 };
+
+// 사용자 정의 Enum - 카운트다운 액션 입력 (블루프린트에서 사용 가능)
+UENUM()
+enum class EWarriorCountDownActionInput : uint8
+{
+	Start,		// 시작
+	Cancel		// 취소
+};
+
+// 사용자 정의 Enum - 카운트다운 액션 출력 (블루프린트에서 사용 가능)
+UENUM()
+enum class EWarriorCountDownActionOutput : uint8
+{
+	Updated,		// 업데이트됨
+	Completed,		// 완료됨
+	Cancelled		// 취소됨
+};
