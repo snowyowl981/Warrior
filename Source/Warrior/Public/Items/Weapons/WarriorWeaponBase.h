@@ -34,11 +34,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	UBoxComponent* WeaponCollisionBox;
 
-	// 무기가 다른 컴포넌트와 충돌 시작 시 전달할 콜백 함수, UFUNCTION을 사용해야 델리게이트에 바인딩 가능
+	// 무기가 다른 컴포넌트와 겹침 시작 시 전달할 콜백 함수, UFUNCTION을 사용해야 델리게이트에 바인딩 가능
 	UFUNCTION()
-	virtual void OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	virtual void OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// 무기가 다른 컴포넌트와 충돌 끝날 시 전달할 콜백 함수, UFUNCTION을 사용해야 델리게이트에 바인딩 가능
+	// 무기가 다른 컴포넌트와 겹침 끝날 시 전달할 콜백 함수, UFUNCTION을 사용해야 델리게이트에 바인딩 가능
 	UFUNCTION()
 	virtual void OnCollisionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
