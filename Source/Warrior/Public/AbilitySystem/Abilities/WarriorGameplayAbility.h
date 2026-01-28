@@ -49,4 +49,9 @@ protected:
 	// 블루프린트에서 호출 가능한 함수로, 대상 액터에 GameplayEffectSpecHandle을 적용하고 성공 여부를 반환
 	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability", meta = (DisplayName = "Apply Gameplay Effect Spec Handle To Target Actor", ExpandBoolAsExecs = "OutSuccessType"))
 	FActiveGameplayEffectHandle BP_ApplyEffectSpecHandleToTargetActor(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EWarriorSuccessType& OutSuccessType);
+	
+	// 주어진 GameplayEffectSpecHandle을 여러 HitResult에 포함된 액터들에게 적용
+	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability")
+	void ApplyGameplayEffectSpecHandleToHitResults(const FGameplayEffectSpecHandle& InSpecHandle, const TArray<FHitResult>& InHitResults);
+	
 };

@@ -5,6 +5,8 @@
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "Components/Combat/PawnCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "WarriorFunctionLibrary.h"
+#include "WarriorGameplayTags.h"
 
 // 어빌리티가 캐릭터(Actor)에게 부여될 때 호출되는 함수
 void UWarriorGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -76,4 +78,49 @@ FActiveGameplayEffectHandle UWarriorGameplayAbility::BP_ApplyEffectSpecHandleToT
 
 	// 적용 결과 핸들을 반환.
 	return ActiveGameplayEffectHandle;
+}
+
+void UWarriorGameplayAbility::ApplyGameplayEffectSpecHandleToHitResults(const FGameplayEffectSpecHandle& InSpecHandle, const TArray<FHitResult>& InHitResults)
+{
+	// 맞은 결과가 없으면 함수 종료
+	if (InHitResults.IsEmpty())
+	{
+		return;
+	}
+	
+	// 어빌리티 수행 액터로부터 폰 캐스팅, 체크 후 할당
+	APawn* OwningPawn = CastChecked<APawn>(GetAvatarActorFromActorInfo());
+	
+	// InHitResults 배열의 각 히트 결과를 순회
+	for (const FHitResult& Hit : InHitResults)
+	{
+		// 충돌한 액터가 폰(APawn)인지 확인 후 캐스팅
+		if (APawn* HitPawn = Cast<APawn>(Hit.GetActor()))
+		{
+			// 대상 폰이 아군이 아닌, 적대적인 대상인지 확인
+			if (UWarriorFunctionLibrary::IsTargetPawnHostile(OwningPawn, HitPawn))
+			{
+				// 지정된 GameplayEffectSpecHandle을 적 폰(HitPawn)에 적용
+				// 이 함수는 효과를 실제로 타겟에게 부여하고, 그 결과를 핸들로 반환
+				FActiveGameplayEffectHandle ActiveGameplayEffectHandle = NativeApplyEffectSpecHandleToTarget(HitPawn, InSpecHandle);
+          
+				// Gameplay 이벤트 데이터 구조체를 생성하고, 가해자/대상 정보를 설정
+				FGameplayEventData Data;
+				Data.Instigator = OwningPawn;	// 이펙트를 적용한 주체
+				Data.Target = HitPawn;			// 이펙트가 적용된 대상
+          
+				// 효과가 성공적으로 적용되었을 경우에만 실행
+				if (ActiveGameplayEffectHandle.WasSuccessfullyApplied())
+				{
+					// 타겟 액터(HitPawn)에게 '피격 리액션' 관련 Gameplay 이벤트를 전송
+					// 이 이벤트는 애니메이션 처리나 사운드, 추가 반응(넉백 등)을 트리거 가능
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+						HitPawn,
+						WarriorGameplayTags::Shared_Event_HitReact,	// "피격 리액션" 태그
+						Data											// 이벤트 데이터 (가해자/대상 정보)
+					);
+				}
+			}
+		}
+	}
 }
