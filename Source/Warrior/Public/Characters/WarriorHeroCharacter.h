@@ -61,14 +61,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
 	class UDataAsset_InputConfig* InputConfigDataAsset;
 
-	// 이동 입력 함수
+	// 이동, 카메라 입력 함수
 	void Input_Move(const struct FInputActionValue& InputActionValue);
-	// 카메라 입력 함수
 	void Input_Look(const struct FInputActionValue& InputActionValue);
 
 	// 타겟 변경 입력 함수
 	void Input_SwitchTargetTriggered(const struct FInputActionValue& InputActionValue);
 	void Input_SwitchTargetCompleted(const struct FInputActionValue& InputActionValue);
+	
+	// 돌 줍기 입력 함수
+	void Input_PickUpStones(const struct FInputActionValue& InputActionValue);
 
 	// 방향 전환 FVector 변수 (락온 타겟 변경에 사용)
 	FVector2D SwitchDirection = FVector2D::ZeroVector;

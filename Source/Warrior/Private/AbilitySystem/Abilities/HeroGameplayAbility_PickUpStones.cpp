@@ -78,3 +78,23 @@ void UHeroGameplayAbility_PickUpStones::CollectStones()
     }
 }
 
+void UHeroGameplayAbility_PickUpStones::ConsumeStones()
+{
+    // 주변에 수집 가능한 돌이 없으면 능력 취소
+    if (CollectedStones.IsEmpty())
+    {
+        CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
+    }
+    
+    // for 루프 돌려 돌 할당
+    for (AWarriorStoneBase* CollectedStone : CollectedStones)
+    {
+        // 유효한 돌인지 확인
+        if (CollectedStone)
+        {
+            // 현재 어빌리티의 ASC와 레벨을 넘겨서 돌 소비
+            CollectedStone->Consume(GetWarriorAbilitySystemComponentFromActorInfo(), GetAbilityLevel());
+        }
+    }
+}
+
