@@ -25,6 +25,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void CollectStones();
 	
+	UFUNCTION(BlueprintCallable)
+	void ConsumeStones();
+	
 private:
 	// 스톤 박스 트레이스 거리
 	UPROPERTY(EditDefaultsOnly)

@@ -103,16 +103,19 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	// 플레이어 입력 컴포넌트를 UWarriorInputComponent 타입 태스팅 (null이거나 캐스팅 실패 시 크래시)
 	UWarriorInputComponent* WarriorInputComponent = CastChecked<UWarriorInputComponent>(PlayerInputComponent);
 	// WarriorInputComponent에 미리 생성해 둔 BindNativeInputAction 함수 사용
-	// 이동 인풋 액션 바인딩
+	// 이동, 시선 (카메라 회전) 인풋 액션 바인딩
 	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
-	// 시선 (카메라 회전) 인풋 액션 바인딩
 	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
-	// 눌렀을 떼, 뗐을 때 액션 바인딩
-	WarriorInputComponent->BindAbilityInputAction(InputConfigDataAsset, this, &ThisClass::Input_AbilityInputPressed, &ThisClass::Input_AbilityInputReleased);
 
 	// 타겟 변경 함수 바인딩
 	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_SwitchTarget, ETriggerEvent::Triggered, this, &ThisClass::Input_SwitchTargetTriggered);
 	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_SwitchTarget, ETriggerEvent::Completed, this, &ThisClass::Input_SwitchTargetCompleted);
+	
+	// 돌 줍기 함수 바인딩
+	WarriorInputComponent->BindNativeInputAction(InputConfigDataAsset, WarriorGameplayTags::InputTag_PickUp_Stones, ETriggerEvent::Started, this, &ThisClass::Input_PickUpStones);
+	
+	// 눌렀을 떼, 뗐을 때 액션 바인딩
+	WarriorInputComponent->BindAbilityInputAction(InputConfigDataAsset, this, &ThisClass::Input_AbilityInputPressed, &ThisClass::Input_AbilityInputReleased);
 }
 
 void AWarriorHeroCharacter::BeginPlay()
@@ -179,7 +182,18 @@ void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const struct FInputActio
 		SwitchDirection.X > 0.f ? WarriorGameplayTags::Player_Event_SwitchTarget_Right : WarriorGameplayTags::Player_Event_SwitchTarget_Left,
 		Data
 	);
+}
 
+void AWarriorHeroCharacter::Input_PickUpStones(const struct FInputActionValue& InputActionValue)
+{
+	// 게임플레이 이벤트 데이터
+	FGameplayEventData Data;
+	// 액터에 게임플레이 이벤트 전송
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		this, 
+		WarriorGameplayTags::Player_Event_ConsumeStones,
+		Data
+	);
 }
 
 void AWarriorHeroCharacter::Input_AbilityInputPressed(FGameplayTag InputTag)
