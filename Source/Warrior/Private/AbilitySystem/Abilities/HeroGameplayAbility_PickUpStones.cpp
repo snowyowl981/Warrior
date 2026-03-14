@@ -2,6 +2,8 @@
 
 
 #include "AbilitySystem/Abilities/HeroGameplayAbility_PickUpStones.h"
+
+#include "WarriorDebugHelper.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Items/PickUps/WarriorStoneBase.h"
