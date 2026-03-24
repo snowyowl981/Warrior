@@ -2,36 +2,29 @@
 
 
 #include "AbilitySystem/Abilities/HeroGameplayAbility_PickUpStones.h"
-
 #include "WarriorDebugHelper.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Items/PickUps/WarriorStoneBase.h"
+#include "Components/UI/HeroUIComponent.h"
 
 /**
  * 돌 줍기 능력을 담당하는 Gameplay Ability 클래스
  * 플레이어 주변의 박스 트레이스를 통해 돌(AWarriorStoneBase 액터)을 탐지하고 수집한다.
  */
 
-void UHeroGameplayAbility_PickUpStones::ActivateAbility(
-    const FGameplayAbilitySpecHandle Handle, 
-    const FGameplayAbilityActorInfo* ActorInfo, 
-    const FGameplayAbilityActivationInfo ActivationInfo, 
-    const FGameplayEventData* TriggerEventData
-)
+void UHeroGameplayAbility_PickUpStones::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+    // 영웅 UI 컴포넌트에 스톤 상호작용 전달
+    GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(true);
     // 기본 ActivateAbility 로직 실행 (부모 클래스 처리)
-    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData); 
+    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UHeroGameplayAbility_PickUpStones::EndAbility(
-    const FGameplayAbilitySpecHandle Handle, 
-    const FGameplayAbilityActorInfo* ActorInfo, 
-    const FGameplayAbilityActivationInfo ActivationInfo, 
-    bool bReplicateEndAbility, 
-    bool bWasCancelled
-)
+void UHeroGameplayAbility_PickUpStones::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+    // 영웅 UI 컴포넌트에 스톤 상호작용 전달
+    GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(false);
     // 기본 EndAbility 로직 실행 (부모 클래스 처리)
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

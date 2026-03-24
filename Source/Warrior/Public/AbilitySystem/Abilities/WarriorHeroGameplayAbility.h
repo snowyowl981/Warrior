@@ -9,6 +9,7 @@
 class AWarriorHeroCharacter;
 class AWarriorHeroController;
 class UHeroCombatComponent;
+class UHeroUIComponent;
 
 /**
  * 
@@ -27,9 +28,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	AWarriorHeroController*	GetHeroControllerFromActorInfo();
 
-	// ActorInfo에서 영웅 컨트롤러(UHeroCombatComponent) 할당
+	// ActorInfo에서 영웅 전투 컴포넌트(UHeroCombatComponent) 할당
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	UHeroCombatComponent*	GetHeroCombatComponentFromActorInfo();
+	
+	// ActorInfo에서 영웅 UI 컴포넌트(UHeroUIComponent) 할당
+	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+	UHeroUIComponent* GetHeroUIComponentFromActorInfo();
 
 	// 영웅 대미지 효과 SpecHandle 생성 함수
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")

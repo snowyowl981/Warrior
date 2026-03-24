@@ -39,8 +39,14 @@ UHeroCombatComponent* UWarriorHeroGameplayAbility::GetHeroCombatComponentFromAct
 	return GetHeroCharacterFromActorInfo()->GetHeroCombatComponent();
 }
 
+UHeroUIComponent* UWarriorHeroGameplayAbility::GetHeroUIComponentFromActorInfo()
+{
+	// 현재 어빌리티의 ActorInfo에서 영웅 캐릭터를 가져온 후, 영웅 UI 컴포넌트 반환
+	return GetHeroCharacterFromActorInfo()->GetHeroUIComponent();
+}
+
 FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag,
-	int32 InUsedComboCount)
+                                                                                      int32 InUsedComboCount)
 {
 	// 게임플레이 이펙트 유효성 체크
 	check(EffectClass);
