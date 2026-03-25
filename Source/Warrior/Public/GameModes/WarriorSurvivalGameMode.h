@@ -73,6 +73,8 @@ protected:
 private:
 	// 게임모드 상태 Setter
 	void SetCurrentSurvivalGameModeState(EWarriorSurvivalGameModeState InState);
+	// 모든 웨이브 클리어 여부
+	bool HasFinishedAllWaves() const;
 	
 	// 현재 ENUM 상태 추적
 	UPROPERTY()
@@ -85,4 +87,28 @@ private:
 	// 에디터에서 생성 및 블루프린트에 할당할 적 웨이브 생성기 데이터 테이블
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
 	UDataTable* EnemyWaveSpawnerDataTable;
+	
+	// 총 웨이브 개수
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
+	int32 TotalWavesToSpawn;
+	
+	// 현재 웨이브
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
+	int32 CurrentWaveCount = 1;
+	
+	// 시작 이후 경과된 시간
+	UPROPERTY()
+	float TimePassedSinceStart = 0.0f;
+	
+	// 새 웨이브 생성 전 카운트다운
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
+	float SpawnNewWaveWaitTime = 5.0f;
+	
+	// 적 스폰 지연 시간 (위젯이 사라지길 기다렸다가 적을 스폰하는 데 사용)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
+	float SpawnEnemiesDelayTime = 2.0f;
+	
+	// 웨이브 완료 시 대기 시간
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
+	float WaveCompletedWaitTime = 5.0f;
 };
