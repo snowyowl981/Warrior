@@ -75,6 +75,11 @@ private:
 	void SetCurrentSurvivalGameModeState(EWarriorSurvivalGameModeState InState);
 	// 모든 웨이브 클리어 여부
 	bool HasFinishedAllWaves() const;
+	// 다음 웨이브 적 미리 비동기 로드
+	void PreLoadNextWaveEnemies();
+	
+	// 현재 웨이브 스포너 테이블 가져오기
+	FWarriorEnemyWaveSpawnerTableRow* GetCurrentWaveSpawnerTableRow() const;
 	
 	// 현재 ENUM 상태 추적
 	UPROPERTY()
@@ -111,4 +116,10 @@ private:
 	// 웨이브 완료 시 대기 시간
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
 	float WaveCompletedWaitTime = 5.0f;
+	
+	// 비동기 로딩이 끝난 적 캐릭터 클래스를 캐시해 두는 맵
+	// Key  : 스폰 대상 적 캐릭터의 소프트 클래스 포인터 (지연 로딩용 레퍼런스)
+	// Value: 실제 로드가 완료된 적 캐릭터의 UClass 포인터
+	UPROPERTY()
+	TMap<TSoftClassPtr<AWarriorEnemyCharacter>, UClass*> PreLoadedEnemyClassMap;
 };
