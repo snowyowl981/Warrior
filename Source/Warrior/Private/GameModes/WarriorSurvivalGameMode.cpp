@@ -4,6 +4,9 @@
 #include "GameModes/WarriorSurvivalGameMode.h"
 #include "Engine/AssetManager.h"
 #include "Characters/WarriorEnemyCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/TargetPoint.h"
+#include "NavigationSystem.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -53,7 +56,7 @@ void AWarriorSurvivalGameMode::Tick(float DeltaTime)
 		// 경과 시간이 스폰 딜레이 이상인 경우
 		if (TimePassedSinceStart >= SpawnEnemiesDelayTime)
 		{
-			// TODO : Handle Spawn New Enemies
+			CurrentSpawnedEnemiesCounter += TrySpawnWaveEnemies();
 			TimePassedSinceStart = 0.0f;
 			
 			// 게임모드 상태 진행 중으로 설정
@@ -148,4 +151,84 @@ FWarriorEnemyWaveSpawnerTableRow* AWarriorSurvivalGameMode::GetCurrentWaveSpawne
 
 	// 찾은 Row 반환
 	return FoundRow;
+}
+
+int32 AWarriorSurvivalGameMode::TrySpawnWaveEnemies()
+{
+    // 현재 타겟 포인트 배열이 비어있다면 한 번만 월드에서 찾아와 캐싱
+    if (TargetPointsArray.IsEmpty())
+    {
+        // 월드 내에 배치된 ATargetPoint 액터들을 전부 찾아 TargetPointsArray에 할당
+        UGameplayStatics::GetAllActorsOfClass(this, ATargetPoint::StaticClass(), TargetPointsArray);
+    }
+    
+    // 유효한 타겟 포인트가 하나도 없으면 에디터나 로그에서 바로 잡을 수 있도록 강하게 크래시를 유도
+    checkf(!TargetPointsArray.IsEmpty(), TEXT("No valid target point found in level : %s for spawning enemies"), *GetWorld()->GetName());
+    
+    // 이번 함수 호출에서 실제로 스폰에 성공한 적 수
+    uint32 EnemiesSpawnedThisTime = 0;
+    
+    // 스폰 파라미터 설정
+    FActorSpawnParameters SpawnParam;
+    // 충돌 여부와 관계없이 무조건 스폰되도록 설정
+    SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    
+    // 현재 웨이브에 대한 스포너 테이블(Row)에 정의된 스포너 정보들을 순회
+    for (const FWarriorEnemyWaveSpawnerInfo& SpawnerInfo : GetCurrentWaveSpawnerTableRow()->EnemyWaveSpawnerDefinitions)
+    {
+        // 스폰할 적 클래스(소프트 레퍼런스)가 비어 있으면 건너뛰기
+        if (SpawnerInfo.SoftEnemyClassToSpawn.IsNull()) continue;
+       
+        // 해당 스포너 정보에서 한 번에 생성할 적의 수를 [최소, 최대] 범위 안에서 랜덤으로 결정
+        const int32 NumToSpawn = FMath::RandRange(SpawnerInfo.MinPerSpawnCount, SpawnerInfo.MaxPerSpawnCount);
+       
+        // 사전에 로드해둔 소프트 클래스 → 실제 UClass 매핑 테이블에서 클래스 조회
+        UClass* LoadedEnemyClass = PreLoadedEnemyClassMap.FindChecked(SpawnerInfo.SoftEnemyClassToSpawn);
+       
+        // 이번 스포너 정보 기준으로 결정된 수만큼 적 스폰 시도
+        for (int32 i = 0; i < NumToSpawn; i++)
+        {
+            // 사용 가능한 타겟 포인트 중 하나를 랜덤으로 선택
+            const int32 RandomTargetPointIndex = FMath::RandRange(0, TargetPointsArray.Num() - 1);
+            const FVector SpawnOrigin = TargetPointsArray[RandomTargetPointIndex]->GetActorLocation();
+            // 타겟 포인트의 Forward 방향을 그대로 회전 값으로 사용
+            const FRotator SpawnRotation = TargetPointsArray[RandomTargetPointIndex]->GetActorForwardVector().ToOrientationRotator();
+          
+            // 네비 메시 위에서 사용할 랜덤 위치
+            FVector RandomLocation;
+            // 지정한 타겟 포인트를 중심으로 반경 400 안에서 네비게이션 가능한 랜덤 위치 하나를 선택
+            UNavigationSystemV1::K2_GetRandomLocationInNavigableRadius(this, SpawnOrigin, RandomLocation, 400.0f);
+          
+            // 적 캐릭터가 땅에 박히지 않도록 Z축으로 약간 상승
+            RandomLocation += FVector(0.0f, 0.0f, 150.0f);
+          
+            // 실제 적 캐릭터 액터 스폰
+            AWarriorEnemyCharacter* SpawnedEnemy = GetWorld()->SpawnActor<AWarriorEnemyCharacter>(LoadedEnemyClass, RandomLocation, SpawnRotation, SpawnParam);
+          
+            // 스폰에 성공했다면 카운터 갱신
+            if (SpawnedEnemy)
+            {
+                // 이번 함수 호출에서 스폰된 수 증가
+                EnemiesSpawnedThisTime++;
+                // 이 웨이브 전체 기준 누적 스폰 수 증가
+                TotalSpawnedEnemiesThisWaveCounter++;
+            }
+          
+            // 웨이브 설정 상 스폰해야 할 총 적 수를 이미 채웠다면 더 이상 스폰하지 않고 조기 종료
+            if (!ShouldKeepSpawnEnemies())
+            {
+                return EnemiesSpawnedThisTime;
+            }
+        }
+    }
+    
+    // 모든 스포너 정보를 처리했거나 중간에 더 이상 스폰할 필요가 없어져 루프를 빠져나왔을 때,
+    // 이번 호출 동안 실제로 스폰한 적의 수를 반환
+    return EnemiesSpawnedThisTime;
+}
+
+bool AWarriorSurvivalGameMode::ShouldKeepSpawnEnemies() const
+{
+	// 현재 웨이브의 목표 스폰 수에 아직 도달하지 않았다면 계속 스폰
+    return TotalSpawnedEnemiesThisWaveCounter < GetCurrentWaveSpawnerTableRow()->TotalEnemyToSpawnThisWave;
 }

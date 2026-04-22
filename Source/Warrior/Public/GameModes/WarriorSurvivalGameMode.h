@@ -81,6 +81,10 @@ private:
 	// 현재 웨이브 스포너 테이블 가져오기
 	FWarriorEnemyWaveSpawnerTableRow* GetCurrentWaveSpawnerTableRow() const;
 	
+	// 적 스폰 시도
+	int32 TrySpawnWaveEnemies();
+	bool ShouldKeepSpawnEnemies() const;
+	
 	// 현재 ENUM 상태 추적
 	UPROPERTY()
 	EWarriorSurvivalGameModeState CurrentSurvivalGameModeState;
@@ -100,6 +104,18 @@ private:
 	// 현재 웨이브
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentWaveCount = 1;
+	
+	// 현재 스폰된 적 카운터
+	UPROPERTY()
+	int32 CurrentSpawnedEnemiesCounter = 0;
+	
+	// 현재 웨이브에서 스폰시킬 적의 토탈 카운터
+	UPROPERTY()
+	int32 TotalSpawnedEnemiesThisWaveCounter = 0;
+	
+	// 타겟 포인트 배열 (스폰 위치)
+	UPROPERTY()
+	TArray<AActor*> TargetPointsArray;
 	
 	// 시작 이후 경과된 시간
 	UPROPERTY()
