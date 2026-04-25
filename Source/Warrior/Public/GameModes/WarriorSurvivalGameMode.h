@@ -83,7 +83,12 @@ private:
 	
 	// 적 스폰 시도
 	int32 TrySpawnWaveEnemies();
+	// 계속 스폰해야하는지 여부
 	bool ShouldKeepSpawnEnemies() const;
+	
+	// 적 제거 시 전달할 콜백 함수
+	UFUNCTION()
+	void OnEnemyDestroyed(AActor* DestroyedActor);
 	
 	// 현재 ENUM 상태 추적
 	UPROPERTY()

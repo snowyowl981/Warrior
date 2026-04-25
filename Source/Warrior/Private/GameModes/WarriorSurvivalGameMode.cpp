@@ -113,6 +113,9 @@ void AWarriorSurvivalGameMode::PreLoadNextWaveEnemies()
 		return;
 	}
 	
+	// TMap 비우기
+	PreLoadedEnemyClassMap.Empty();
+	
 	// 현재 웨이브의 스포너 정보(EnemyWaveSpawnerDefinitions)를 순회
 	for (const FWarriorEnemyWaveSpawnerInfo& SpawnerInfo : GetCurrentWaveSpawnerTableRow()->EnemyWaveSpawnerDefinitions)
 	{
@@ -130,7 +133,6 @@ void AWarriorSurvivalGameMode::PreLoadNextWaveEnemies()
 					{
 					   // 미리 로드된 적 클래스 맵에 소프트 레퍼런스와 실제 클래스를 캐시
 					   PreLoadedEnemyClassMap.Emplace(SpawnerInfo.SoftEnemyClassToSpawn, LoadedEnemyClass);
-						Debug::Print(LoadedEnemyClass->GetName() + TEXT(" Is Loaded"));
 					}
 				 }
 			  )
@@ -208,6 +210,8 @@ int32 AWarriorSurvivalGameMode::TrySpawnWaveEnemies()
             // 스폰에 성공했다면 카운터 갱신
             if (SpawnedEnemy)
             {
+            	// 적 제거 시 델리게이트 바인딩
+            	SpawnedEnemy->OnDestroyed.AddUniqueDynamic(this, &ThisClass::OnEnemyDestroyed);
                 // 이번 함수 호출에서 스폰된 수 증가
                 EnemiesSpawnedThisTime++;
                 // 이 웨이브 전체 기준 누적 스폰 수 증가
@@ -231,4 +235,29 @@ bool AWarriorSurvivalGameMode::ShouldKeepSpawnEnemies() const
 {
 	// 현재 웨이브의 목표 스폰 수에 아직 도달하지 않았다면 계속 스폰
     return TotalSpawnedEnemiesThisWaveCounter < GetCurrentWaveSpawnerTableRow()->TotalEnemyToSpawnThisWave;
+}
+
+void AWarriorSurvivalGameMode::OnEnemyDestroyed(AActor* DestroyedActor)
+{
+	// 현재 필드에 살아있는 적 수 감소
+	CurrentSpawnedEnemiesCounter--;
+	
+	Debug::Print(FString::Printf(TEXT("CurrentSpawnedEnemiesCounter : %i, TotalSpawnedEnemiesThisWaveCounter : %i"), CurrentSpawnedEnemiesCounter, TotalSpawnedEnemiesThisWaveCounter));
+    
+	// 아직 이 웨이브에서 더 스폰해야 할 적이 남아 있다면
+	if (ShouldKeepSpawnEnemies())
+	{
+		// 방금 빈 자리가 난 만큼 추가로 스폰하고, 그 수를 현재 필드 적 수에 더하기
+		CurrentSpawnedEnemiesCounter += TrySpawnWaveEnemies();
+	}
+	// 더 이상 스폰할 적은 없고, 현재 필드에 남은 적도 없다면
+	else if (CurrentSpawnedEnemiesCounter == 0)
+	{
+		// 다음 웨이브를 위해 웨이브 단위 누적 스폰 수와 현재 필드 적 수 초기화
+		TotalSpawnedEnemiesThisWaveCounter = 0;
+		CurrentSpawnedEnemiesCounter = 0;
+       
+		// 이 웨이브가 완전히 끝났음을 알리는 상태로 전환
+		SetCurrentSurvivalGameModeState(EWarriorSurvivalGameModeState::WaveCompleted);
+	}
 }
