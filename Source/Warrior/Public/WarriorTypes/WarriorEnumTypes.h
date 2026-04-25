@@ -40,3 +40,13 @@ enum class EWarriorCountDownActionOutput : uint8
 	Completed,		// 완료됨
 	Cancelled		// 취소됨
 };
+
+// 사용자 정의 Enum - 게임 난이도 설정
+UENUM(BlueprintType)
+enum class EWarriorGameDifficulty : uint8
+{
+	Easy,
+	Normal,
+	Hard,
+	VeryHard
+};
