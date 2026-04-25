@@ -261,3 +261,20 @@ void AWarriorSurvivalGameMode::OnEnemyDestroyed(AActor* DestroyedActor)
 		SetCurrentSurvivalGameModeState(EWarriorSurvivalGameModeState::WaveCompleted);
 	}
 }
+
+void AWarriorSurvivalGameMode::RegisterSpawnedEnemies(const TArray<AWarriorEnemyCharacter*>& InEnemiesToRegister)
+{
+	// 새로 스폰된 적 배열을 순회하면서
+	for (AWarriorEnemyCharacter* SpawnedEnemy : InEnemiesToRegister)
+	{
+		if (SpawnedEnemy)
+		{
+			// 유효한 적마다 현재 필드에 살아있는 적 수를 1 증가시키고
+			CurrentSpawnedEnemiesCounter++;
+          
+			// 해당 적이 파괴될 때 호출될 델리게이트에 OnEnemyDestroyed를 등록해서
+			// 죽을 때마다 카운터 감소 및 웨이브 진행 로직이 동작하도록 연결
+			SpawnedEnemy->OnDestroyed.AddUniqueDynamic(this, &ThisClass::OnEnemyDestroyed);
+		}
+	}
+}

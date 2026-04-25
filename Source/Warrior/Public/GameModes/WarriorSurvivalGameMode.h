@@ -143,4 +143,9 @@ private:
 	// Value: 실제 로드가 완료된 적 캐릭터의 UClass 포인터
 	UPROPERTY()
 	TMap<TSoftClassPtr<AWarriorEnemyCharacter>, UClass*> PreLoadedEnemyClassMap;
+	
+public:
+	// 게임모드에서 특정 적의 스폰 능력을 읽어오지 못 하는 부분 대응
+	UFUNCTION(BlueprintCallable)
+	void RegisterSpawnedEnemies(const TArray<AWarriorEnemyCharacter*>& InEnemiesToRegister);
 };
