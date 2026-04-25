@@ -242,8 +242,6 @@ void AWarriorSurvivalGameMode::OnEnemyDestroyed(AActor* DestroyedActor)
 	// 현재 필드에 살아있는 적 수 감소
 	CurrentSpawnedEnemiesCounter--;
 	
-	Debug::Print(FString::Printf(TEXT("CurrentSpawnedEnemiesCounter : %i, TotalSpawnedEnemiesThisWaveCounter : %i"), CurrentSpawnedEnemiesCounter, TotalSpawnedEnemiesThisWaveCounter));
-    
 	// 아직 이 웨이브에서 더 스폰해야 할 적이 남아 있다면
 	if (ShouldKeepSpawnEnemies())
 	{
