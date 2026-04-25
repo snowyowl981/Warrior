@@ -11,6 +11,7 @@
 #include "Widgets/WarriorWidgetBase.h"
 #include "Components/BoxComponent.h"
 #include "WarriorFunctionLibrary.h"
+#include "GameModes/WarriorBaseGameMode.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -147,18 +148,42 @@ void AWarriorEnemyCharacter::InitEnemyStartUpData()
 	{
 		return;
 	}
-
+	
+	// 적용시킬 어빌리티 레벨
+	int32 AbilityApplyLevel = 1;
+					
+	if (AWarriorBaseGameMode* BaseGameMode = GetWorld()->GetAuthGameMode<AWarriorBaseGameMode>())
+	{
+		switch (BaseGameMode->GetCurrentGameDifficulty())
+		{
+		case EWarriorGameDifficulty::Easy:
+			AbilityApplyLevel = 1;
+			break;
+		case EWarriorGameDifficulty::Normal:
+			AbilityApplyLevel = 2;
+			break;
+		case EWarriorGameDifficulty::Hard:
+			AbilityApplyLevel = 3;
+			break;
+		case EWarriorGameDifficulty::VeryHard:
+			AbilityApplyLevel = 4;
+			break;
+		default:
+			break;
+		}
+	}
+	
 	// AssetManager를 통해 비동기 로딩을 요청
 	UAssetManager::GetStreamableManager().RequestAsyncLoad(
 		CharacterStartUpData.ToSoftObjectPath(), // SoftObjectPath를 통해 자산 경로 지정
 		FStreamableDelegate::CreateLambda(
-			[this]() // 로딩이 완료되었을 때 실행할 람다 함수 정의
+			[this, AbilityApplyLevel]() // 로딩이 완료되었을 때 실행할 람다 함수 정의
 			{
 				// 자산이 유효하게 로딩되었는지 확인하고, Get()을 통해 실제 객체 포인터 획득
 				if (UDataAsset_StartUpDataBase* LoadedData = CharacterStartUpData.Get())
 				{
 					// AbilitySystemComponent에 로딩된 능력 데이터를 적용
-					LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
+					LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent, AbilityApplyLevel);
 				}
 			}
 		)	

@@ -15,6 +15,7 @@
 #include "Components/Combat/HeroCombatComponent.h"
 #include "Components/UI/HeroUIComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "GameModes/WarriorBaseGameMode.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -81,8 +82,33 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 		// 데이터 동기식 로드 및 지역변수 할당 후 유효한지 확인
 		if (UDataAsset_StartUpDataBase* LoadedData = CharacterStartUpData.LoadSynchronous())
 		{
+			// 적용할 어빌리티 레벨
+			int32 AbilityApplyLevel = 1;
+			
+			// 게임모드 난이도에 따른 어빌리티 레벨 설정
+			if (AWarriorBaseGameMode* BaseGameMode = GetWorld()->GetAuthGameMode<AWarriorBaseGameMode>())
+			{
+				switch (BaseGameMode->GetCurrentGameDifficulty())
+				{
+				case EWarriorGameDifficulty::Easy:
+					AbilityApplyLevel = 4;
+					break;
+				case EWarriorGameDifficulty::Normal:
+					AbilityApplyLevel = 3;
+					break;
+				case EWarriorGameDifficulty::Hard:
+					AbilityApplyLevel = 2;
+					break;
+				case EWarriorGameDifficulty::VeryHard:
+					AbilityApplyLevel = 1;
+					break;
+				default:
+					break;
+				}
+			}
+			
 			// 유효한 경우 로드된 데이터에 능력 시스템 컴포넌트 부여
-			LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
+			LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent, AbilityApplyLevel);
 		}
 
 	}
