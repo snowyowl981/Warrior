@@ -131,7 +131,7 @@ private:
 	float SpawnNewWaveWaitTime = 5.0f;
 	
 	// 적 스폰 지연 시간 (위젯이 사라지길 기다렸다가 적을 스폰하는 데 사용)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "WaveDefinition", meta = (AllowPrivateAccess = "true"))
 	float SpawnEnemiesDelayTime = 2.0f;
 	
 	// 웨이브 완료 시 대기 시간
