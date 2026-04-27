@@ -9,6 +9,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "WarriorGameplayTags.h"
 #include "WarriorTypes/WarriorCountDownAction.h"
+#include "WarriorGameInstance.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -242,4 +243,20 @@ void UWarriorFunctionLibrary::CountDown(const UObject* WorldContextObject, float
           FoundAction->CancelAction(); // 진행 중인 액션 취소
        }
     }
+}
+
+UWarriorGameInstance* UWarriorFunctionLibrary::GetWarriorGameInstance(const UObject* WorldContextObject)
+{
+	// 엔진 인스턴스가 유효한지 먼저 확인
+	if (GEngine)
+	{
+		// 전달받은 월드 컨텍스트 객체에서 UWorld를 얻어온다 (실패 시 로그 남기고 nullptr 반환)
+		if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+		{
+			// 해당 월드에 연결된 GameInstance를 반환
+			return World->GetGameInstance<UWarriorGameInstance>();
+		}
+	}
+	// 엔진 또는 월드를 얻지 못했다면 nullptr 반환
+	return nullptr;
 }

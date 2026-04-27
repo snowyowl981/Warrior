@@ -10,8 +10,8 @@
 // Forward declaration
 class UWarriorAbilitySystemComponent;
 class UPawnCombatComponent;
-
 struct FScalableFloat;
+class UWarriorGameInstance;
 
 /**
  * 유틸리티 함수들을 포함한 정적 함수 라이브러리 클래스
@@ -98,4 +98,7 @@ public:
 		EWarriorCountDownActionInput CountDownInput, 
 		UPARAM(DisplayName = "Output") EWarriorCountDownActionOutput& CountDownOutput,
 		FLatentActionInfo LatentInfo);
+	
+	UFUNCTION(BlueprintPure, Category = "Warrior|FunctionLibrary", meta = (WorldContext = "WolrdContextObject"))
+	static UWarriorGameInstance* GetWarriorGameInstance(const UObject* WorldContextObject);
 };
