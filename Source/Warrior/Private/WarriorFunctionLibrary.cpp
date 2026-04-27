@@ -250,7 +250,7 @@ UWarriorGameInstance* UWarriorFunctionLibrary::GetWarriorGameInstance(const UObj
 	// 엔진 인스턴스가 유효한지 먼저 확인
 	if (GEngine)
 	{
-		// 전달받은 월드 컨텍스트 객체에서 UWorld를 얻어온다 (실패 시 로그 남기고 nullptr 반환)
+		// 전달받은 월드 컨텍스트 객체에서 UWorld를 얻어오기 (실패 시 로그 남기고 nullptr 반환)
 		if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
 		{
 			// 해당 월드에 연결된 GameInstance를 반환
@@ -259,4 +259,46 @@ UWarriorGameInstance* UWarriorFunctionLibrary::GetWarriorGameInstance(const UObj
 	}
 	// 엔진 또는 월드를 얻지 못했다면 nullptr 반환
 	return nullptr;
+}
+
+void UWarriorFunctionLibrary::ToggleInputMode(const UObject* WorldContextObject, EWarriorInputMode InInputMode)
+{
+	// 플레이어 컨트롤러 지역변수 설정
+	APlayerController* PlayerController = nullptr;
+	
+	// 엔진 인스턴스가 유효한지 먼저 확인
+	if (GEngine)
+	{
+		// 월드 컨텍스트로부터 UWorld를 얻어와, 해당 월드의 첫 번째 플레이어 컨트롤러를 할당
+		if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+		{
+			PlayerController = World->GetFirstPlayerController();
+		}
+	}
+	
+	// 플레이어 컨트롤러를 얻지 못한 경우 종료
+	if (!PlayerController)
+	{
+		return;
+	}
+	
+	// 게임 전용 / UI 전용 입력 모드 인스턴스 준비
+	FInputModeGameOnly GameOnlyMode;
+	FInputModeUIOnly UIOnlyMode;
+	
+	// 요청된 입력 모드에 따라 입력 모드와 마우스 커서 표시 여부를 전환
+	switch (InInputMode)
+	{
+	case EWarriorInputMode::GameOnly:
+		// 게임만 입력받도록 설정, 마우스 커서는 숨기기
+		PlayerController->SetInputMode(GameOnlyMode);
+		PlayerController->bShowMouseCursor = false;
+		break;
+		
+	case EWarriorInputMode::UIOnly:
+		// UI만 입력받도록 설정, 마우스 커서는 표시
+		PlayerController->SetInputMode(UIOnlyMode);
+		PlayerController->bShowMouseCursor = true;
+		break;
+	}
 }

@@ -50,3 +50,11 @@ enum class EWarriorGameDifficulty : uint8
 	Hard,
 	VeryHard
 };
+
+// 사용자 정의 Enum - 게임 난이도 설정
+UENUM(BlueprintType)
+enum class EWarriorInputMode : uint8
+{
+	GameOnly,
+	UIOnly
+};
