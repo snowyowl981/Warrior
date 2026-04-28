@@ -36,6 +36,9 @@ class WARRIOR_API UWarriorGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void Init() override;
+	
 protected:
 	// 게임 레벨 배열
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
