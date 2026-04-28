@@ -16,6 +16,7 @@ class WARRIOR_API UWarriorSaveGame : public USaveGame
 	GENERATED_BODY()
 	
 public:
+	// 현재 저장된 게임 난이도
 	UPROPERTY(BlueprintReadOnly)
 	EWarriorGameDifficulty SavedCurrentGameDifficulty;
 };
