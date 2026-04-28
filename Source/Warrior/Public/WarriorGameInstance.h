@@ -40,6 +40,9 @@ public:
 	virtual void Init() override;
 	
 protected:
+	virtual void OnPreLoadMap(const FString& MapName);
+	virtual void OnDestinationWorldLoaded(UWorld* LoadedWorld);
+	
 	// 게임 레벨 배열
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FWarriorGameLevelSet> GameLevelSets;
