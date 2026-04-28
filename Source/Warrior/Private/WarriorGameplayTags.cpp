@@ -132,4 +132,6 @@ namespace WarriorGameplayTags
 	/** Game Data Tags **/
 	UE_DEFINE_GAMEPLAY_TAG(GameData_Level_SurvivalGameModeMap, "GameData.Level.SurvivalGameModeMap");	// 서바이벌 게임모드 레벨
 	UE_DEFINE_GAMEPLAY_TAG(GameData_Level_MainMenuMap, "GameData.Level.MainMenuMap");					// 메인 메뉴 레벨
+	
+	UE_DEFINE_GAMEPLAY_TAG(GameData_SaveGame_Slot_1, "GameData.SaveGame.Slot.1");						// 게임 저장 슬롯 1
 }
