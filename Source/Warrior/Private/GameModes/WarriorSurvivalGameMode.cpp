@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/TargetPoint.h"
 #include "NavigationSystem.h"
+#include "WarriorFunctionLibrary.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -88,6 +89,21 @@ void AWarriorSurvivalGameMode::Tick(float DeltaTime)
 				PreLoadNextWaveEnemies();
 			}
 		}
+	}
+}
+
+// 게임 초기화
+void AWarriorSurvivalGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+	
+	// 저장된 게임 난이도
+	EWarriorGameDifficulty SavedGameDifficulty;
+	
+	// 난이도 받아와 현재 게임 난이도에 할당
+	if (UWarriorFunctionLibrary::TryLoadSaveGameDifficulty(SavedGameDifficulty))
+	{
+		CurrentGameDifficulty = SavedGameDifficulty;
 	}
 }
 

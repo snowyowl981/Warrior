@@ -3,6 +3,12 @@
 
 #include "WarriorGameInstance.h"
 
+// 인스턴스 초기화
+void UWarriorGameInstance::Init()
+{
+	Super::Init();
+}
+
 TSoftObjectPtr<UWorld> UWarriorGameInstance::GetGameLevelByTag(FGameplayTag InTag) const
 {
 	// 등록된 게임 레벨 셋들을 순회
