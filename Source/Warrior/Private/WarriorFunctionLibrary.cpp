@@ -10,6 +10,8 @@
 #include "WarriorGameplayTags.h"
 #include "WarriorTypes/WarriorCountDownAction.h"
 #include "WarriorGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "SaveGame/WarriorSaveGame.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -301,4 +303,62 @@ void UWarriorFunctionLibrary::ToggleInputMode(const UObject* WorldContextObject,
 		PlayerController->bShowMouseCursor = true;
 		break;
 	}
+}
+
+// 현재 게임 난이도를 세이브 파일에 저장하는 정적 함수
+void UWarriorFunctionLibrary::SaveCurrentGameDifficulty(EWarriorGameDifficulty InDifficultyToSave)
+{
+	// SaveGame 기반 오브젝트 생성 (클래스는 UWarriorSaveGame)
+	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(UWarriorSaveGame::StaticClass());
+    
+	// 생성한 오브젝트를 UWarriorSaveGame 타입으로 캐스팅
+	if (UWarriorSaveGame* WarriorSaveGameObject = Cast<UWarriorSaveGame>(SaveGameObject))
+	{
+		// SaveGame 오브젝트에 현재 난이도 저장
+		WarriorSaveGameObject->SavedCurrentGameDifficulty = InDifficultyToSave;
+       
+		// 지정된 슬롯 이름과 인덱스로 세이브 시도
+		const bool bWasSaved = UGameplayStatics::SaveGameToSlot(
+			WarriorSaveGameObject,
+			WarriorGameplayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),
+			0
+		);
+       
+		// 세이브 성공 여부를 화면에 출력
+		Debug::Print(bWasSaved ? TEXT("Saved") : TEXT("Not Saved"));
+	}
+}
+
+// 세이브 파일에서 게임 난이도를 읽어오는 정적 함수
+// 성공 시 true 반환, OutSavedDifficulty에 읽어온 난이도를 채워 넣음
+bool UWarriorFunctionLibrary::TryLoadSaveGameDifficulty(EWarriorGameDifficulty& OutSavedDifficulty)
+{
+	// 해당 슬롯에 세이브 파일이 존재하는지 확인
+	if (UGameplayStatics::DoesSaveGameExist(
+		WarriorGameplayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),
+		0
+	))
+	{
+		// 슬롯에서 SaveGame 오브젝트 로드
+		USaveGame* SaveGameObject = UGameplayStatics::LoadGameFromSlot(
+			WarriorGameplayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),
+			0
+		);
+       
+		// 로드된 오브젝트를 UWarriorSaveGame 타입으로 캐스팅
+		if (UWarriorSaveGame* WarriorSaveGameObject = Cast<UWarriorSaveGame>(SaveGameObject))
+		{
+			// SaveGame에 저장된 난이도를 Out 파라미터로 전달
+			OutSavedDifficulty = WarriorSaveGameObject->SavedCurrentGameDifficulty;
+          
+			// 로드 성공 로그 출력
+			Debug::Print(TEXT("Loading Successful"), FColor::Green);
+          
+			// 로드 성공을 알림
+			return true;
+		}
+	}
+    
+	// 세이브가 없거나 캐스팅 실패 시 로드 실패 처리
+	return false;
 }

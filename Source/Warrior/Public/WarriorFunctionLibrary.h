@@ -99,9 +99,19 @@ public:
 		UPARAM(DisplayName = "Output") EWarriorCountDownActionOutput& CountDownOutput,
 		FLatentActionInfo LatentInfo);
 	
+	// 게임 인스턴스 가져오기
 	UFUNCTION(BlueprintPure, Category = "Warrior|FunctionLibrary", meta = (WorldContext = "WorldContextObject"))
 	static UWarriorGameInstance* GetWarriorGameInstance(const UObject* WorldContextObject);
 	
+	// 인풋 모드 토글
 	UFUNCTION(BlueprintCallable, Category = "Warrior|FunctionLibrary", meta = (WorldContext = "WorldContextObject"))
 	static void ToggleInputMode(const UObject* WorldContextObject, EWarriorInputMode InInputMode);
+	
+	// 현재 게임 난이도 저장
+	UFUNCTION(BlueprintCallable, Category = "Warrior|FunctionLibrary")
+	static void SaveCurrentGameDifficulty(EWarriorGameDifficulty InDifficultyToSave);
+	
+	// 저장된 게임 난이도 불러오기
+	UFUNCTION(BlueprintCallable, Category = "Warrior|FunctionLibrary")
+	static bool TryLoadSaveGameDifficulty(EWarriorGameDifficulty& OutSavedDifficulty);
 };
